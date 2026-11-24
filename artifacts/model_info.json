@@ -1,0 +1,186 @@
+{
+ "deployed_model": "TF-IDF + LogReg",
+ "classifiers": [
+  {
+   "file": "tfidf_lr.pkl",
+   "input": "tfidf"
+  }
+ ],
+ "retriever": "tfidf",
+ "index": "index_tfidf.npz",
+ "n_projects_index": 113233,
+ "data_collected": "2026-11-23T19:35:16+00:00",
+ "test_macro_f1": 0.8615,
+ "test_accuracy": 0.8693,
+ "test_top3": 0.9916,
+ "per_class_f1": {
+  "AHRC": 0.899,
+  "BBSRC": 0.78,
+  "EPSRC": 0.885,
+  "ESRC": 0.823,
+  "Innovate UK": 0.925,
+  "MRC": 0.795,
+  "NERC": 0.867,
+  "STFC": 0.918
+ },
+ "accuracy_by_confidence": {
+  "(0.0, 0.4]": 0.428,
+  "(0.4, 0.6]": 0.517,
+  "(0.6, 0.8]": 0.682,
+  "(0.8, 1.0]": 0.943
+ },
+ "award_coverage": {
+  "TF-IDF: 10 neighbours, P25-P75": 0.435,
+  "TF-IDF: 30 neighbours, P25-P75": 0.522,
+  "TF-IDF: 30 neighbours, P10-P90": 0.801,
+  "TF-IDF: 30 same-scheme neighbours, P25-P75": 0.52,
+  "TF-IDF: 30 same-scheme neighbours, P10-P90": 0.797,
+  "BGE: 10 neighbours, P25-P75": 0.392,
+  "BGE: 30 neighbours, P25-P75": 0.467,
+  "BGE: 30 neighbours, P10-P90": 0.752,
+  "BGE: 30 same-scheme neighbours, P25-P75": 0.504,
+  "BGE: 30 same-scheme neighbours, P10-P90": 0.786,
+  "council-wide P25-P75 (oracle: true council)": 0.512,
+  "council-wide P10-P90 (oracle: true council)": 0.812
+ },
+ "grant_categories": [
+  "Research Grant",
+  "Studentship",
+  "Collaborative R&D",
+  "Fellowship",
+  "Feasibility Studies",
+  "Vouchers",
+  "Knowledge Transfer Partnership",
+  "Grant for R&D",
+  "Research and Innovation",
+  "Small Business Research Initiative",
+  "GRD Proof of Concept",
+  "GRD Development of Prototype",
+  "GRD Proof of Market",
+  "Study",
+  "Investment Accelerator"
+ ],
+ "temperature": 1.1314305006097425,
+ "calibration": [
+  {
+   "probabilities": "raw (class-weighted LR)",
+   "ECE": 0.0336,
+   "Brier": 0.1954,
+   "log loss": 0.3846,
+   "accuracy": 0.8693
+  },
+  {
+   "probabilities": "temperature-scaled (T = 1.13, fitted on OOF train)",
+   "ECE": 0.018,
+   "Brier": 0.1935,
+   "log loss": 0.3755,
+   "accuracy": 0.8693
+  }
+ ],
+ "retrieval_metrics": [
+  {
+   "retriever": "TF-IDF cosine",
+   "Recall@10": 0.895,
+   "MRR@10": 0.7727,
+   "Hit@10 (topic)": 0.8713,
+   "MRR@10 (topic)": 0.5788
+  },
+  {
+   "retriever": "MINILM cosine",
+   "Recall@10": 0.9,
+   "MRR@10": 0.7998,
+   "Hit@10 (topic)": 0.8673,
+   "MRR@10 (topic)": 0.5663
+  },
+  {
+   "retriever": "BGE cosine",
+   "Recall@10": 0.8945,
+   "MRR@10": 0.7979,
+   "Hit@10 (topic)": 0.8554,
+   "MRR@10 (topic)": 0.5518
+  },
+  {
+   "retriever": "Hybrid RRF (TF-IDF + BGE)",
+   "Recall@10": 0.921,
+   "MRR@10": 0.8203,
+   "Hit@10 (topic)": 0.8812,
+   "MRR@10 (topic)": 0.5936
+  }
+ ],
+ "award_regression": [
+  {
+   "model": "Ridge: TF-IDF text only (alpha=1)",
+   "MAE log": 0.8,
+   "median abs error \u00a3k": 119.614,
+   "train s": 1.2,
+   "coverage": null,
+   "median width (hi/lo)": null
+  },
+  {
+   "model": "Ridge: TF-IDF + metadata (alpha=3)",
+   "MAE log": 0.534,
+   "median abs error \u00a3k": 74.568,
+   "train s": 3.8,
+   "coverage": null,
+   "median width (hi/lo)": null
+  },
+  {
+   "model": "LightGBM: BGE text only",
+   "MAE log": 0.885,
+   "median abs error \u00a3k": 124.163,
+   "train s": 8.3,
+   "coverage": null,
+   "median width (hi/lo)": null
+  },
+  {
+   "model": "LightGBM: BGE + metadata, quantile P25-P75",
+   "MAE log": 0.462,
+   "median abs error \u00a3k": 65.226,
+   "train s": 8.3,
+   "coverage": 0.422,
+   "median width (hi/lo)": 1.803
+  },
+  {
+   "model": "LightGBM: BGE + metadata, quantile P10-P90",
+   "MAE log": 0.462,
+   "median abs error \u00a3k": 65.226,
+   "train s": 8.3,
+   "coverage": 0.687,
+   "median width (hi/lo)": 3.4
+  },
+  {
+   "model": "30 TF-IDF neighbours, P25-P75 (deployed)",
+   "MAE log": 0.836,
+   "median abs error \u00a3k": 125.513,
+   "train s": null,
+   "coverage": 0.505,
+   "median width (hi/lo)": 3.858
+  },
+  {
+   "model": "30 TF-IDF neighbours, P10-P90 (deployed)",
+   "MAE log": 0.836,
+   "median abs error \u00a3k": 125.513,
+   "train s": null,
+   "coverage": 0.786,
+   "median width (hi/lo)": 13.13
+  },
+  {
+   "model": "Baseline: training median",
+   "MAE log": 1.12,
+   "median abs error \u00a3k": 186.285,
+   "train s": null,
+   "coverage": null,
+   "median width (hi/lo)": null
+  }
+ ],
+ "index_shards": [
+  "index_tfidf_part0.npz",
+  "index_tfidf_part1.npz",
+  "index_tfidf_part2.npz",
+  "index_tfidf_part3.npz",
+  "index_tfidf_part4.npz",
+  "index_tfidf_part5.npz",
+  "index_tfidf_part6.npz",
+  "index_tfidf_part7.npz"
+ ]
+}

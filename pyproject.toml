@@ -1,0 +1,36 @@
+[project]
+name = "fundmatch"
+version = "4.0.0"
+description = "ScholarPulse UK — calibrated UKRI council matching for CS5079 Applied AI. Import package: fundmatch."
+requires-python = ">=3.11"
+dependencies = [
+  "numpy==2.2.6",
+  "scipy==1.15.3",
+  "pandas==2.2.3",
+  "pyarrow==19.0.1",
+  "scikit-learn==1.6.1",
+  "pydantic==2.12.5",
+  "fastapi==0.115.12",
+  "uvicorn==0.34.2",
+  "typer==0.20.0",
+  "rich==14.2.0",
+  "streamlit==1.67.0",
+  "plotly==7.1.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest==8.3.5", "httpx==0.28.1", "nbconvert", "ipykernel"]
+
+[project.scripts]
+fundmatch = "fundmatch.cli:app"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

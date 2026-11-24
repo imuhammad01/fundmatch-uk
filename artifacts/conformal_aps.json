@@ -1,0 +1,19 @@
+{
+  "method": "adaptive prediction set, split-conformal quantile of probability mass until the recorded council",
+  "calibration_n": 2000,
+  "per_council": 250,
+  "seed": 42,
+  "text": "title + department + grant category (abstracts are not in the snapshot)",
+  "quantile_90": 0.9984535775266284,
+  "quantile_95": 0.9996155603982504,
+  "score_median": 0.9392744227108774,
+  "published_test_ece_raw": 0.0336,
+  "published_test_ece_scaled": 0.018,
+  "published_accuracy_by_confidence": {
+    "(0.0, 0.4]": 0.428,
+    "(0.4, 0.6]": 0.517,
+    "(0.6, 0.8]": 0.682,
+    "(0.8, 1.0]": 0.943
+  },
+  "note": "Split-conformal thresholds were fit on real Gateway to Research titles (with the recorded department and scheme), 250 projects per council, seed 42. Abstracts are not in this snapshot, and the original test-split scores were not exported, so the 90% and 95% levels are quantiles of that title sample. They are not a new coverage certificate for the 22,648-row CS5079 test set. The published test calibration (ECE 0.0336 to 0.0180, and accuracy by confidence) is unchanged and separate."
+}

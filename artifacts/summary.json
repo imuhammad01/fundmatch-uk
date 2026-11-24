@@ -1,0 +1,711 @@
+{
+ "clean_table": [
+  {
+   "step": "raw projects from API",
+   "rows left": 158710,
+   "removed": 0
+  },
+  {
+   "step": "keep 8 councils (drop programme funders)",
+   "rows left": 141538,
+   "removed": 17172
+  },
+  {
+   "step": "drop placeholder abstracts",
+   "rows left": 125815,
+   "removed": 15723
+  },
+  {
+   "step": "drop abstracts < 30 words",
+   "rows left": 117986,
+   "removed": 7829
+  },
+  {
+   "step": "drop boilerplate reused by >= 5 titles",
+   "rows left": 117759,
+   "removed": 227
+  },
+  {
+   "step": "drop duplicates with conflicting funders",
+   "rows left": 117719,
+   "removed": 40
+  },
+  {
+   "step": "drop exact duplicates (joint grants)",
+   "rows left": 113233,
+   "removed": 4486
+  }
+ ],
+ "results": [
+  {
+   "model": "Majority class",
+   "accuracy": 0.2761,
+   "macro_F1": 0.0541,
+   "weighted_F1": 0.1195,
+   "top3_acc": 0.606,
+   "cv_macroF1": null,
+   "cv_sd": null,
+   "train_s": 0.0137,
+   "batch_ms_per_doc": 0.0002,
+   "key": "dummy"
+  },
+  {
+   "model": "TF-IDF + ComplementNB",
+   "accuracy": 0.8088,
+   "macro_F1": 0.8069,
+   "weighted_F1": 0.8093,
+   "top3_acc": 0.9751,
+   "cv_macroF1": 0.8078,
+   "cv_sd": 0.001,
+   "train_s": 0.372,
+   "batch_ms_per_doc": 0.0043,
+   "key": "nb"
+  },
+  {
+   "model": "TF-IDF + LogReg",
+   "accuracy": 0.8693,
+   "macro_F1": 0.8615,
+   "weighted_F1": 0.8697,
+   "top3_acc": 0.9916,
+   "cv_macroF1": 0.8585,
+   "cv_sd": 0.0018,
+   "train_s": 80.2748,
+   "batch_ms_per_doc": 0.0013,
+   "key": "lr"
+  },
+  {
+   "model": "TF-IDF + LinearSVM",
+   "accuracy": 0.8702,
+   "macro_F1": 0.8622,
+   "weighted_F1": 0.8706,
+   "top3_acc": 0.9866,
+   "cv_macroF1": 0.8599,
+   "cv_sd": 0.0012,
+   "train_s": 9.8721,
+   "batch_ms_per_doc": 0.0016,
+   "key": "svm"
+  },
+  {
+   "model": "MINILM emb + LogReg",
+   "accuracy": 0.784,
+   "macro_F1": 0.7835,
+   "weighted_F1": 0.785,
+   "top3_acc": 0.9808,
+   "cv_macroF1": 0.7833,
+   "cv_sd": 0.001,
+   "train_s": 23.1616,
+   "batch_ms_per_doc": 0.0013,
+   "key": "minilm_lr"
+  },
+  {
+   "model": "BGE emb + LogReg",
+   "accuracy": 0.7946,
+   "macro_F1": 0.7934,
+   "weighted_F1": 0.7957,
+   "top3_acc": 0.9824,
+   "cv_macroF1": 0.7926,
+   "cv_sd": 0.0013,
+   "train_s": 21.0148,
+   "batch_ms_per_doc": 0.0015,
+   "key": "bge_lr"
+  },
+  {
+   "model": "BGE emb + MLP",
+   "accuracy": 0.8252,
+   "macro_F1": 0.8197,
+   "weighted_F1": 0.8254,
+   "top3_acc": 0.9875,
+   "cv_macroF1": 0.8187,
+   "cv_sd": 0.0018,
+   "train_s": 318.5545,
+   "batch_ms_per_doc": 0.0583,
+   "key": "bge_mlp"
+  },
+  {
+   "model": "Ensemble: TF-IDF LR + BGE LR",
+   "accuracy": 0.8644,
+   "macro_F1": 0.8577,
+   "weighted_F1": 0.8652,
+   "top3_acc": 0.9916,
+   "cv_macroF1": 0.8562,
+   "cv_sd": 0.0005,
+   "train_s": 101.2896,
+   "batch_ms_per_doc": 0.0,
+   "key": "ens"
+  }
+ ],
+ "leak": [
+  {
+   "text": "unmasked (leaky)",
+   "macro_F1": 0.8663,
+   "macro_F1 on test texts that name a funder": 0.9289
+  },
+  {
+   "text": "funder names masked (used)",
+   "macro_F1": 0.8615,
+   "macro_F1 on test texts that name a funder": 0.8875
+  }
+ ],
+ "learning_curve": [
+  {
+   "fraction": 0.02,
+   "n_train": 1807,
+   "TF-IDF + LogReg": 0.7782,
+   "BGE emb + LogReg": 0.7608
+  },
+  {
+   "fraction": 0.05,
+   "n_train": 4525,
+   "TF-IDF + LogReg": 0.8127,
+   "BGE emb + LogReg": 0.7678
+  },
+  {
+   "fraction": 0.1,
+   "n_train": 9054,
+   "TF-IDF + LogReg": 0.8256,
+   "BGE emb + LogReg": 0.7769
+  },
+  {
+   "fraction": 0.25,
+   "n_train": 22643,
+   "TF-IDF + LogReg": 0.8434,
+   "BGE emb + LogReg": 0.7845
+  },
+  {
+   "fraction": 0.5,
+   "n_train": 45290,
+   "TF-IDF + LogReg": 0.8523,
+   "BGE emb + LogReg": 0.7902
+  },
+  {
+   "fraction": 1.0,
+   "n_train": 90585,
+   "TF-IDF + LogReg": 0.8615,
+   "BGE emb + LogReg": 0.7934
+  }
+ ],
+ "temporal": [
+  {
+   "model": "TF-IDF + LogReg",
+   "macro_F1 (train <2021, test >=2021)": 0.827
+  },
+  {
+   "model": "BGE emb + LogReg",
+   "macro_F1 (train <2021, test >=2021)": 0.7611
+  },
+  {
+   "model": "Ensemble",
+   "macro_F1 (train <2021, test >=2021)": 0.8281
+  }
+ ],
+ "retrieval": [
+  {
+   "retriever": "TF-IDF cosine",
+   "P@10 same council": 0.7021,
+   "P@10 shares a research topic": 0.3502
+  },
+  {
+   "retriever": "MiniLM cosine",
+   "P@10 same council": 0.6929,
+   "P@10 shares a research topic": 0.3458
+  },
+  {
+   "retriever": "BGE cosine",
+   "P@10 same council": 0.6923,
+   "P@10 shares a research topic": 0.3302
+  }
+ ],
+ "award": [
+  {
+   "method": "TF-IDF: 10 neighbours, P25-P75",
+   "coverage of true award": 0.435,
+   "median |log10 error| of median": 0.254,
+   "median width (hi/lo)": 2.774
+  },
+  {
+   "method": "TF-IDF: 30 neighbours, P25-P75",
+   "coverage of true award": 0.522,
+   "median |log10 error| of median": 0.247,
+   "median width (hi/lo)": 3.781
+  },
+  {
+   "method": "TF-IDF: 30 neighbours, P10-P90",
+   "coverage of true award": 0.801,
+   "median |log10 error| of median": 0.247,
+   "median width (hi/lo)": 12.952
+  },
+  {
+   "method": "TF-IDF: 30 same-scheme neighbours, P25-P75",
+   "coverage of true award": 0.52,
+   "median |log10 error| of median": 0.185,
+   "median width (hi/lo)": 2.967
+  },
+  {
+   "method": "TF-IDF: 30 same-scheme neighbours, P10-P90",
+   "coverage of true award": 0.797,
+   "median |log10 error| of median": 0.185,
+   "median width (hi/lo)": 9.017
+  },
+  {
+   "method": "BGE: 10 neighbours, P25-P75",
+   "coverage of true award": 0.392,
+   "median |log10 error| of median": 0.284,
+   "median width (hi/lo)": 2.825
+  },
+  {
+   "method": "BGE: 30 neighbours, P25-P75",
+   "coverage of true award": 0.467,
+   "median |log10 error| of median": 0.272,
+   "median width (hi/lo)": 3.817
+  },
+  {
+   "method": "BGE: 30 neighbours, P10-P90",
+   "coverage of true award": 0.752,
+   "median |log10 error| of median": 0.272,
+   "median width (hi/lo)": 12.457
+  },
+  {
+   "method": "BGE: 30 same-scheme neighbours, P25-P75",
+   "coverage of true award": 0.504,
+   "median |log10 error| of median": 0.204,
+   "median width (hi/lo)": 3.069
+  },
+  {
+   "method": "BGE: 30 same-scheme neighbours, P10-P90",
+   "coverage of true award": 0.786,
+   "median |log10 error| of median": 0.204,
+   "median width (hi/lo)": 9.123
+  },
+  {
+   "method": "council-wide P25-P75 (oracle: true council)",
+   "coverage of true award": 0.512,
+   "median |log10 error| of median": 0.304,
+   "median width (hi/lo)": 5.444
+  },
+  {
+   "method": "council-wide P10-P90 (oracle: true council)",
+   "coverage of true award": 0.812,
+   "median |log10 error| of median": 0.304,
+   "median width (hi/lo)": 19.743
+  }
+ ],
+ "selection": [
+  {
+   "configuration": "TF-IDF + LogReg",
+   "search": "TF-IDF cosine",
+   "CV macro-F1": 0.858,
+   "test macro-F1": 0.862,
+   "test top-3 acc": 0.992,
+   "search P@10 topic": 0.35,
+   "disk MB": 116.472,
+   "peak RAM MB": 369.582,
+   "cold load s": 2.807,
+   "latency ms (median)": 56.634,
+   "latency ms (p95)": 68.275
+  },
+  {
+   "configuration": "Ensemble: TF-IDF LR + BGE LR",
+   "search": "BGE cosine",
+   "CV macro-F1": 0.856,
+   "test macro-F1": 0.858,
+   "test top-3 acc": 0.992,
+   "search P@10 topic": 0.33,
+   "disk MB": 218.483,
+   "peak RAM MB": 789.852,
+   "cold load s": 3.759,
+   "latency ms (median)": 189.609,
+   "latency ms (p95)": 205.817
+  },
+  {
+   "configuration": "BGE emb + MLP",
+   "search": "BGE cosine",
+   "CV macro-F1": 0.819,
+   "test macro-F1": 0.82,
+   "test top-3 acc": 0.988,
+   "search P@10 topic": 0.33,
+   "disk MB": 208.913,
+   "peak RAM MB": 756.441,
+   "cold load s": 3.836,
+   "latency ms (median)": 191.769,
+   "latency ms (p95)": 198.555
+  },
+  {
+   "configuration": "TF-IDF + ComplementNB",
+   "search": "TF-IDF cosine",
+   "CV macro-F1": 0.808,
+   "test macro-F1": 0.807,
+   "test top-3 acc": 0.975,
+   "search P@10 topic": 0.35,
+   "disk MB": 137.272,
+   "peak RAM MB": 392.773,
+   "cold load s": 1.753,
+   "latency ms (median)": 56.528,
+   "latency ms (p95)": 71.264
+  },
+  {
+   "configuration": "BGE emb + LogReg",
+   "search": "BGE cosine",
+   "CV macro-F1": 0.793,
+   "test macro-F1": 0.793,
+   "test top-3 acc": 0.982,
+   "search P@10 topic": 0.33,
+   "disk MB": 204.088,
+   "peak RAM MB": 756.5,
+   "cold load s": 3.883,
+   "latency ms (median)": 190.159,
+   "latency ms (p95)": 215.969
+  },
+  {
+   "configuration": "MINILM emb + LogReg",
+   "search": "MiniLM cosine",
+   "CV macro-F1": 0.783,
+   "test macro-F1": 0.784,
+   "test top-3 acc": 0.981,
+   "search P@10 topic": 0.346,
+   "disk MB": 161.161,
+   "peak RAM MB": 713.758,
+   "cold load s": 4.173,
+   "latency ms (median)": 173.879,
+   "latency ms (p95)": 205.37
+  }
+ ],
+ "deploy": "TF-IDF + LogReg",
+ "calib": [
+  {
+   "confidence": "(0.0, 0.4]",
+   "mean": "0.373",
+   "size": "134"
+  },
+  {
+   "confidence": "(0.4, 0.6]",
+   "mean": "0.503",
+   "size": "1589"
+  },
+  {
+   "confidence": "(0.6, 0.8]",
+   "mean": "0.656",
+   "size": "2607"
+  },
+  {
+   "confidence": "(0.8, 1.0]",
+   "mean": "0.935",
+   "size": "18318"
+  }
+ ],
+ "n_clean": 113233,
+ "n_train": 90585,
+ "n_test": 22648,
+ "n_groups": 109104,
+ "tuning": {
+  "nb": [
+   0.1,
+   0.8078,
+   0.001
+  ],
+  "lr": [
+   32.0,
+   0.8585,
+   0.0018
+  ],
+  "svm": [
+   1.0,
+   0.8599,
+   0.0012
+  ],
+  "bge_mlp": [
+   1024.0,
+   0.8187,
+   0.0018
+  ],
+  "minilm_lr": [
+   16.0,
+   0.7833,
+   0.001
+  ],
+  "bge_lr": [
+   4.0,
+   0.7926,
+   0.0013
+  ]
+ },
+ "calibration": [
+  {
+   "probabilities": "raw (class-weighted LR)",
+   "ECE": 0.0336,
+   "Brier": 0.1954,
+   "log loss": 0.3846,
+   "accuracy": 0.8693
+  },
+  {
+   "probabilities": "temperature-scaled (T = 1.13, fitted on OOF train)",
+   "ECE": 0.018,
+   "Brier": 0.1935,
+   "log loss": 0.3755,
+   "accuracy": 0.8693
+  }
+ ],
+ "temperature": 1.1314305006097425,
+ "cross_country": [
+  {
+   "model": "TF-IDF + LogReg",
+   "accuracy": 0.671,
+   "macro_F1": 0.623,
+   "top3_acc": 0.949
+  },
+  {
+   "model": "BGE emb + LogReg",
+   "accuracy": 0.68,
+   "macro_F1": 0.617,
+   "top3_acc": 0.959
+  },
+  {
+   "model": "Ensemble",
+   "accuracy": 0.697,
+   "macro_F1": 0.649,
+   "top3_acc": 0.962
+  }
+ ],
+ "cross_counts": [
+  [
+   "ARC",
+   "AHRC",
+   "155"
+  ],
+  [
+   "ARC",
+   "BBSRC",
+   "303"
+  ],
+  [
+   "ARC",
+   "EPSRC",
+   "784"
+  ],
+  [
+   "ARC",
+   "ESRC",
+   "238"
+  ],
+  [
+   "ARC",
+   "MRC",
+   "86"
+  ],
+  [
+   "ARC",
+   "NERC",
+   "137"
+  ],
+  [
+   "ARC",
+   "STFC",
+   "41"
+  ],
+  [
+   "NIH",
+   "MRC",
+   "940"
+  ],
+  [
+   "NSF",
+   "BBSRC",
+   "126"
+  ],
+  [
+   "NSF",
+   "EPSRC",
+   "664"
+  ],
+  [
+   "NSF",
+   "ESRC",
+   "49"
+  ],
+  [
+   "NSF",
+   "Innovate UK",
+   "159"
+  ],
+  [
+   "NSF",
+   "NERC",
+   "158"
+  ],
+  [
+   "NSF",
+   "STFC",
+   "12"
+  ]
+ ],
+ "cross_per_council": {
+  "AHRC": 0.626,
+  "BBSRC": 0.476,
+  "EPSRC": 0.741,
+  "ESRC": 0.662,
+  "Innovate UK": 0.472,
+  "MRC": 0.665,
+  "NERC": 0.719,
+  "STFC": 0.943
+ },
+ "nih_pred": {
+  "MRC": 0.706,
+  "BBSRC": 0.143,
+  "EPSRC": 0.069,
+  "ESRC": 0.054,
+  "Innovate UK": 0.017,
+  "NERC": 0.006,
+  "AHRC": 0.003,
+  "STFC": 0.001
+ },
+ "n_intl_raw": 5000,
+ "cross_by_source": [
+  {
+   "source": "NSF",
+   "n": 1168,
+   "TF-IDF LR acc": 0.753,
+   "BGE LR acc": 0.718,
+   "TF-IDF LR top3": 0.956
+  },
+  {
+   "source": "NIH",
+   "n": 940,
+   "TF-IDF LR acc": 0.706,
+   "BGE LR acc": 0.706,
+   "TF-IDF LR top3": 0.965
+  },
+  {
+   "source": "ARC",
+   "n": 1744,
+   "TF-IDF LR acc": 0.596,
+   "BGE LR acc": 0.64,
+   "TF-IDF LR top3": 0.935
+  }
+ ],
+ "retrieval_metrics": [
+  {
+   "retriever": "TF-IDF cosine",
+   "Recall@10": 0.895,
+   "MRR@10": 0.7727,
+   "Hit@10 (topic)": 0.8713,
+   "MRR@10 (topic)": 0.5788
+  },
+  {
+   "retriever": "MINILM cosine",
+   "Recall@10": 0.9,
+   "MRR@10": 0.7998,
+   "Hit@10 (topic)": 0.8673,
+   "MRR@10 (topic)": 0.5663
+  },
+  {
+   "retriever": "BGE cosine",
+   "Recall@10": 0.8945,
+   "MRR@10": 0.7979,
+   "Hit@10 (topic)": 0.8554,
+   "MRR@10 (topic)": 0.5518
+  },
+  {
+   "retriever": "Hybrid RRF (TF-IDF + BGE)",
+   "Recall@10": 0.921,
+   "MRR@10": 0.8203,
+   "Hit@10 (topic)": 0.8812,
+   "MRR@10 (topic)": 0.5936
+  }
+ ],
+ "award_regression": [
+  {
+   "model": "Ridge: TF-IDF text only (alpha=1)",
+   "MAE log": 0.8,
+   "median abs error \u00a3k": 119.614,
+   "train s": 1.2,
+   "coverage": null,
+   "median width (hi/lo)": null
+  },
+  {
+   "model": "Ridge: TF-IDF + metadata (alpha=3)",
+   "MAE log": 0.534,
+   "median abs error \u00a3k": 74.568,
+   "train s": 3.8,
+   "coverage": null,
+   "median width (hi/lo)": null
+  },
+  {
+   "model": "LightGBM: BGE text only",
+   "MAE log": 0.885,
+   "median abs error \u00a3k": 124.163,
+   "train s": 8.3,
+   "coverage": null,
+   "median width (hi/lo)": null
+  },
+  {
+   "model": "LightGBM: BGE + metadata, quantile P25-P75",
+   "MAE log": 0.462,
+   "median abs error \u00a3k": 65.226,
+   "train s": 8.3,
+   "coverage": 0.422,
+   "median width (hi/lo)": 1.803
+  },
+  {
+   "model": "LightGBM: BGE + metadata, quantile P10-P90",
+   "MAE log": 0.462,
+   "median abs error \u00a3k": 65.226,
+   "train s": 8.3,
+   "coverage": 0.687,
+   "median width (hi/lo)": 3.4
+  },
+  {
+   "model": "30 TF-IDF neighbours, P25-P75 (deployed)",
+   "MAE log": 0.836,
+   "median abs error \u00a3k": 125.513,
+   "train s": null,
+   "coverage": 0.505,
+   "median width (hi/lo)": 3.858
+  },
+  {
+   "model": "30 TF-IDF neighbours, P10-P90 (deployed)",
+   "MAE log": 0.836,
+   "median abs error \u00a3k": 125.513,
+   "train s": null,
+   "coverage": 0.786,
+   "median width (hi/lo)": 13.13
+  },
+  {
+   "model": "Baseline: training median",
+   "MAE log": 1.12,
+   "median abs error \u00a3k": 186.285,
+   "train s": null,
+   "coverage": null,
+   "median width (hi/lo)": null
+  }
+ ],
+ "n_award_test": 14925,
+ "n_award_train": 59324,
+ "hybrid": [
+  {
+   "retriever": "TF-IDF cosine",
+   "P@10 same council": 0.7021,
+   "P@10 shares a research topic": 0.3502
+  },
+  {
+   "retriever": "BGE cosine",
+   "P@10 same council": 0.6923,
+   "P@10 shares a research topic": 0.3302
+  },
+  {
+   "retriever": "Hybrid RRF (TF-IDF + BGE)",
+   "P@10 same council": 0.7112,
+   "P@10 shares a research topic": 0.3612
+  }
+ ],
+ "faithfulness": [
+  {
+   "deletion": "top-5 explanation words removed",
+   "mean drop in predicted-council probability": 0.22100000083446503,
+   "prediction changed": 0.265
+  },
+  {
+   "deletion": "5 random words removed",
+   "mean drop in predicted-council probability": 0.007000000216066837,
+   "prediction changed": 0.022
+  }
+ ]
+}
