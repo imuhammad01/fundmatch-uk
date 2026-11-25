@@ -1,0 +1,41 @@
+{
+ "conformal_before": {
+  "quantile_90": 0.9984535775266284,
+  "quantile_95": 0.9996155603982504,
+  "score_median": 0.9392744227108774
+ },
+ "conformal_after": {
+  "quantile_90": 0.9981053312480959,
+  "quantile_95": 0.9994225630668963,
+  "score_median": 0.9331408715380545
+ },
+ "novelty_median_before": 0.8081203103065491,
+ "novelty_median_after": 0.8074743747711182,
+ "int8_fidelity_2000_titles": {
+  "n": 2000,
+  "top1_agreement": 0.991,
+  "max_probability_delta": 0.0387,
+  "macro_f1_vs_fp64": 0.989554,
+  "ms_per_text": 0.121
+ },
+ "int8_max_abs_coef_error": 0.11306065661231363,
+ "cold_start_s_incl_imports": 6.97,
+ "engine_cold_s": 5.214,
+ "warm_latency_ms_median": 181.725,
+ "warm_latency_ms_p95": 238.15349999999987,
+ "rss_mb": 630.9,
+ "assets": {
+  "quantile_90": 0.9981053312480959,
+  "quantile_95": 0.9994225630668963,
+  "novelty_n": 2000,
+  "landmarks": 192
+ },
+ "int8_fidelity_10_demos_plus_40_titles": {
+  "n": 50,
+  "top1_agreement": 0.98,
+  "max_probability_delta": 0.029335,
+  "macro_f1_vs_fp64": 0.87234,
+  "ms_per_text": 0.151
+ },
+ "timing_note": "measured on the shared 8-CPU box while the notebook rerun and the leakage script were also running, so latency is pessimistic"
+}

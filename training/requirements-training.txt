@@ -1,0 +1,19 @@
+# Full reproduction (collection + notebook). Python 3.13. Pinned to the versions used for the submitted run.
+requests==2.34.2
+numpy==2.5.5
+pandas==3.0.6
+pyarrow==26.0.1
+scipy==1.18.1
+scikit-learn==1.9.1
+matplotlib==3.11.2
+torch==2.14.1
+sentence-transformers==6.3.0
+transformers==5.24.0
+streamlit==1.67.0
+nbformat==5.11.1
+nbconvert==7.17.2
+ipykernel==7.4.0
+pytest==9.2.0
+lightgbm==4.7.0
+faiss-cpu==1.16.0
+rank-bm25==0.2.2

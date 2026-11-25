@@ -1,0 +1,35 @@
+{
+ "cold_s_incl_imports": 7.32,
+ "engine_cold_s": 5.04,
+ "n": 30,
+ "median_ms": 134.6,
+ "p95_ms": 229.5,
+ "max_ms": 300.8,
+ "rss_mb": 555.0,
+ "memory_mib": {
+  "engine_only_after_load": {
+   "VmRSS": 551.6,
+   "VmHWM_peak": 732.9
+  },
+  "engine_only_v4_0_0_src_for_comparison": {
+   "VmRSS": 530.0,
+   "VmHWM_peak": 709.7
+  },
+  "streamlit_server_after_one_browser_session_matcher_tab": {
+   "VmRSS": 616.1,
+   "VmHWM_peak": 819.3
+  }
+ },
+ "note": "Measured 25 Nov 2026 on the 8-CPU box with other jobs paused. The load-time peak (VmHWM) is above the 690 MB Streamlit Community Cloud minimum; steady RSS is below it. The live app runs, so the host currently grants more than the minimum.",
+ "memory_mib_after_rt21_fix": {
+  "engine_only": {
+   "VmRSS": 543.7,
+   "VmHWM_peak": 632.3
+  },
+  "streamlit_server_after_one_browser_session": {
+   "VmRSS": 599.8,
+   "VmHWM_peak": 691.1
+  },
+  "change": "lexical index built before weights are loaded; SVD dequantised in place"
+ }
+}

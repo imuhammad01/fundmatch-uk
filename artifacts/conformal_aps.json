@@ -4,9 +4,9 @@
   "per_council": 250,
   "seed": 42,
   "text": "title + department + grant category (abstracts are not in the snapshot)",
-  "quantile_90": 0.9984535775266284,
-  "quantile_95": 0.9996155603982504,
-  "score_median": 0.9392744227108774,
+  "quantile_90": 0.9981053312480959,
+  "quantile_95": 0.9994225630668963,
+  "score_median": 0.9331408715380545,
   "published_test_ece_raw": 0.0336,
   "published_test_ece_scaled": 0.018,
   "published_accuracy_by_confidence": {

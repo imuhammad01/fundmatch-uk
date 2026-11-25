@@ -1,0 +1,101 @@
+{
+ "faiss": {
+  "bge_full_corpus": {
+   "corpus": 113233,
+   "dim": 384,
+   "queries": 500,
+   "numpy_exact_ms_per_query_batched": 2.67,
+   "faiss_flat_ms_per_query_batched": 10.54,
+   "faiss_flat_recall_vs_exact": 1.0,
+   "faiss_hnsw_ms_per_query_batched": 0.068,
+   "faiss_hnsw_ms_single_query_median": 0.156,
+   "faiss_hnsw_recall_vs_exact": 0.9975999999999999,
+   "hnsw_build_seconds": 7.0,
+   "flat_index_mb": 165.9,
+   "hnsw_index_mb": 195.3
+  }
+ },
+ "setup": {
+  "known_item": {
+   "queries": 2000,
+   "corpus": 5000
+  },
+  "topic": {
+   "queries": 500,
+   "corpus": 5000,
+   "corpus_share_with_topics": 0.3306
+  }
+ },
+ "known_item": {
+  "TF-IDF cosine": {
+   "Recall@10": 0.895,
+   "MRR@10": 0.7727009920634921
+  },
+  "BM25 (Okapi)": {
+   "Recall@10": 0.916,
+   "MRR@10": 0.8431319444444445
+  },
+  "MiniLM (all-MiniLM-L6-v2)": {
+   "Recall@10": 0.9,
+   "MRR@10": 0.7998482142857143
+  },
+  "BGE (bge-small-en-v1.5)": {
+   "Recall@10": 0.8945,
+   "MRR@10": 0.7978519841269841
+  },
+  "SPECTER (allenai-specter)": {
+   "Recall@10": 0.7575,
+   "MRR@10": 0.5782121031746033
+  }
+ },
+ "topic": {
+  "TF-IDF cosine": {
+   "Hit@10 (topic)": 0.854,
+   "MRR@10 (topic)": 0.49203968253968255,
+   "P@10 (topic)": 0.244
+  },
+  "BM25 (Okapi)": {
+   "Hit@10 (topic)": 0.824,
+   "MRR@10 (topic)": 0.5047063492063493,
+   "P@10 (topic)": 0.24580000000000002
+  },
+  "MiniLM (all-MiniLM-L6-v2)": {
+   "Hit@10 (topic)": 0.798,
+   "MRR@10 (topic)": 0.4539761904761905,
+   "P@10 (topic)": 0.216
+  },
+  "BGE (bge-small-en-v1.5)": {
+   "Hit@10 (topic)": 0.776,
+   "MRR@10 (topic)": 0.4209,
+   "P@10 (topic)": 0.22
+  },
+  "SPECTER (allenai-specter)": {
+   "Hit@10 (topic)": 0.796,
+   "MRR@10 (topic)": 0.4465650793650794,
+   "P@10 (topic)": 0.22019999999999998
+  }
+ },
+ "encode_timing_cpu": {
+  "MiniLM (all-MiniLM-L6-v2)": {
+   "seconds": 274.9,
+   "texts": 12500,
+   "texts_per_second": 45.5,
+   "dim": 384,
+   "max_seq_length": 256
+  },
+  "BGE (bge-small-en-v1.5)": {
+   "seconds": 157.0,
+   "texts": 12500,
+   "texts_per_second": 79.6,
+   "dim": 384,
+   "max_seq_length": 256
+  },
+  "SPECTER (allenai-specter)": {
+   "seconds": 635.4,
+   "texts": 12500,
+   "texts_per_second": 19.7,
+   "dim": 768,
+   "max_seq_length": 256
+  }
+ }
+}

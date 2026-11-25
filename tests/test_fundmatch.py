@@ -93,7 +93,7 @@ def test_bit_exact_logits(engine):
     vector = TfidfVectorizer(
         ngram_range=tuple(meta["ngram_range"]), lowercase=True, token_pattern=meta["token_pattern"],
         sublinear_tf=True, norm="l2", use_idf=True, smooth_idf=True,
-        stop_words=meta["stop_words"], vocabulary=vocab, dtype=np.float64,
+        stop_words="english", vocabulary=vocab, dtype=np.float64,  # as trained (RT-01)
     )
     vector.idf_ = weights["idf"].astype(np.float64)
     vector._tfidf._idf_diag = sp.diags(vector.idf_, offsets=0, format="csr", dtype=np.float64)
@@ -120,9 +120,9 @@ def test_confidence_tiers(engine):
     assert abs(sum(row.probability for row in strong.councils) - 1) < 1e-5
     assert strong.councils[0].funding_finder_url.startswith("https://www.ukri.org/opportunity/?filter_council")
     # A near-empty-but-long string of rare tokens should not be high confidence.
+    # A long string that repeats one word is now refused, not scored (RT-03).
     vague = engine.analyze("Notes", "something something " * 20)
-    assert vague.ok
-    assert vague.confidence in {"high", "moderate", "low"}
+    assert not vague.ok and vague.errors
 
 
 def test_explain_and_contrast(engine):
@@ -274,7 +274,13 @@ def test_streamlit_toggles_change_the_band():
 
 def test_conformal_novelty_constellation_and_hosts(engine):
     peaked = engine.analyze(DEMOS[0]["title"], DEMOS[0]["abstract"])
-    flat = engine.analyze("Notes", "something something " * 20)
+    flat = engine.analyze(
+        "Notes",
+        "This project studies people, places, data and change over time in many settings, working with "
+        "partners to understand what matters, why it matters and how it might be improved for communities "
+        "and organisations across the country.",
+    )
+    assert flat.ok
     assert peaked.conformal_set_90 == ["EPSRC"]
     assert peaked.top_council in peaked.conformal_set_95
     assert len(peaked.conformal_set_95) == 3

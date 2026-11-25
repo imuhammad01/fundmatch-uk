@@ -1,0 +1,105 @@
+[funds] 158710 records in 1588 pages; collecting 1588
+[projects] 158710 records in 1588 pages; collecting 1588
+[funds] page 50/1588  (50s)
+[projects] page 50/1588  (58s)
+[funds] page 100/1588  (99s)
+[projects] page 100/1588  (116s)
+[funds] page 146: HTTP 503, retry in 1s
+[projects] page 126: HTTP 503, retry in 1s
+[projects] page 126: HTTP 503, retry in 2s
+[funds] page 146: HTTP 503, retry in 2s
+[funds] page 146: HTTP 503, retry in 4s
+[projects] page 126: HTTP 503, retry in 4s
+[funds] page 146: HTTP 503, retry in 8s
+[projects] page 126: HTTP 503, retry in 8s
+[funds] page 146: HTTP 503, retry in 16s
+[projects] page 126: HTTP 503, retry in 16s
+[funds] page 150/1588  (182s)
+[projects] page 150/1588  (206s)
+[funds] page 200/1588  (232s)
+[projects] page 200/1588  (263s)
+[funds] page 250/1588  (282s)
+[projects] page 250/1588  (319s)
+[funds] page 300/1588  (332s)
+[projects] page 299: ConnectionError, retry in 1s
+[projects] page 300/1588  (377s)
+[funds] page 350/1588  (383s)
+[funds] page 400/1588  (432s)
+[projects] page 350/1588  (435s)
+[funds] page 450/1588  (482s)
+[projects] page 400/1588  (492s)
+[funds] page 500/1588  (532s)
+[projects] page 450/1588  (549s)
+[funds] page 550/1588  (583s)
+[projects] page 500/1588  (607s)
+[funds] page 600/1588  (633s)
+[projects] page 550/1588  (666s)
+[funds] page 650/1588  (683s)
+[projects] page 600/1588  (722s)
+[funds] page 700/1588  (733s)
+[projects] page 650/1588  (777s)
+[funds] page 750/1588  (783s)
+[funds] page 800/1588  (833s)
+[projects] page 700/1588  (834s)
+[funds] page 850/1588  (883s)
+[projects] page 750/1588  (890s)
+[funds] page 900/1588  (933s)
+[projects] page 800/1588  (947s)
+[funds] page 950/1588  (984s)
+[projects] page 850/1588  (1005s)
+[funds] page 1000/1588  (1034s)
+[projects] page 900/1588  (1062s)
+[funds] page 1050/1588  (1084s)
+[projects] page 950/1588  (1121s)
+[funds] page 1100/1588  (1134s)
+[projects] page 1000/1588  (1182s)
+[funds] page 1150/1588  (1184s)
+[funds] page 1200/1588  (1234s)
+[projects] page 1050/1588  (1240s)
+[funds] page 1250/1588  (1285s)
+[projects] page 1100/1588  (1299s)
+[funds] page 1300/1588  (1336s)
+[projects] page 1150/1588  (1356s)
+[funds] page 1350/1588  (1386s)
+[projects] page 1200/1588  (1419s)
+[funds] page 1400/1588  (1436s)
+[projects] page 1236: HTTP 503, retry in 1s
+[funds] page 1426: HTTP 503, retry in 1s
+[projects] page 1236: HTTP 503, retry in 2s
+[funds] page 1426: HTTP 503, retry in 2s
+[projects] page 1236: HTTP 503, retry in 4s
+[funds] page 1426: HTTP 503, retry in 4s
+[projects] page 1236: HTTP 503, retry in 8s
+[funds] page 1426: HTTP 503, retry in 8s
+[projects] page 1236: HTTP 503, retry in 16s
+[funds] page 1426: HTTP 503, retry in 16s
+[projects] page 1250/1588  (1512s)
+[funds] page 1450/1588  (1520s)
+[funds] page 1500/1588  (1570s)
+[projects] page 1300/1588  (1570s)
+[funds] page 1550/1588  (1624s)
+[projects] page 1350/1588  (1631s)
+[projects] page 1400/1588  (1692s)
+[projects] page 1450/1588  (1750s)
+[projects] page 1500/1588  (1808s)
+[projects] page 1550/1588  (1866s)
+done: {
+  "funds": {
+    "collected_utc": "2026-11-23T19:31:08+00:00",
+    "api_total_records": 158710,
+    "api_total_pages": 1588,
+    "pages_requested": 1588,
+    "pages_fetched_this_run": 1588,
+    "seconds": 1663.3,
+    "delay_s": 1.0
+  },
+  "projects": {
+    "collected_utc": "2026-11-23T19:35:16+00:00",
+    "api_total_records": 158710,
+    "api_total_pages": 1588,
+    "pages_requested": 1588,
+    "pages_fetched_this_run": 1588,
+    "seconds": 1911.0,
+    "delay_s": 1.0
+  }
+}

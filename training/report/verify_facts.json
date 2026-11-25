@@ -1,0 +1,9 @@
+{
+ "hybrid_verdict": "a small gain that needs PyTorch and the BGE encoder (about 790 MB peak), so it is on the roadmap, not deployed.",
+ "example_top": "Innovate UK",
+ "example_p": "73%",
+ "example_band": "\u00a3146k\u2013\u00a3555k",
+ "n_tests": 61,
+ "rss_mb": "616 MiB steady, 819 MiB peak (VmHWM) after one browser session, 25 Nov 2026",
+ "rss_short": "616 MiB"
+}

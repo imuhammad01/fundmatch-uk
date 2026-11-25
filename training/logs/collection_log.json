@@ -1,0 +1,30 @@
+{
+  "funds": {
+    "collected_utc": "2026-11-23T19:31:08+00:00",
+    "api_total_records": 158710,
+    "api_total_pages": 1588,
+    "pages_requested": 1588,
+    "pages_fetched_this_run": 1588,
+    "seconds": 1663.3,
+    "delay_s": 1.0
+  },
+  "projects": {
+    "collected_utc": "2026-11-23T19:35:16+00:00",
+    "api_total_records": 158710,
+    "api_total_pages": 1588,
+    "pages_requested": 1588,
+    "pages_fetched_this_run": 1588,
+    "seconds": 1911.0,
+    "delay_s": 1.0
+  },
+  "organisations": {
+    "collected_utc": "2026-11-23T19:41:37+00:00",
+    "api_total_records": 97102,
+    "api_total_pages": 972,
+    "pages_requested": 972,
+    "pages_fetched_this_run": 972,
+    "seconds": 1040.9,
+    "delay_s": 1.0
+  },
+  "note": "projects and funds were collected in one run (two threads, ~1 req/s each); organisations in a second run, overlapping in time. Retries (HTTP 503) are logged in collect_stdout.log / collect_orgs_stdout.log."
+}

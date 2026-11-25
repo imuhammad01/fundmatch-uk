@@ -17,6 +17,6 @@ The display name is ScholarPulse UK. The Python package and the `fundmatch` comm
 | Notebook `notebooks/01_fundmatch_pipeline_and_evaluation.ipynb` re-executed with saved outputs and zero errors | Re-run before the final commit |
 | Streamlit hero clears the fixed header at 1440×900 and 1280×800. Demo pills do not ellipsize. Radar and hub labels are not clipped | Screenshots in the run artifacts |
 
-Verified on this tree before the v4 commit: `pytest -q` reported 21 passed. The notebook executed with 0 error outputs. Warm median latency was 55.0 ms for `/api/v1/topics`, 51.7 ms for `/api/v1/coach`, 50.2 ms for `/api/v1/redteam`, and 73.3 ms for `/api/v1/hubs`.
+Verified on this tree before the v4 commit: `pytest -q` reported 21 passed. Re-verified on branch `shamim` after the round-2 red team (25 Nov 2026): `pytest -q` reported 61 passed. The notebook executed with 0 error outputs. Warm median latency was 55.0 ms for `/api/v1/topics`, 51.7 ms for `/api/v1/coach`, 50.2 ms for `/api/v1/redteam`, and 73.3 ms for `/api/v1/hubs`.
 
 Contains public sector information licensed under the Open Government Licence v3.0. This tool does not predict funding success and UKRI does not endorse it.

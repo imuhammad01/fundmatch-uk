@@ -1,0 +1,75 @@
+{
+ "n_train": 90585,
+ "n_test": 22648,
+ "fit_seconds": 193.5,
+ "reproduced": {
+  "macro_f1": 0.8619886105089849,
+  "accuracy": 0.8695690568703638,
+  "top3": 0.9914782762274814
+ },
+ "near_duplicates": {
+  "0.95": {
+   "test_with_train_twin": 33,
+   "share": 0.001457082303073119,
+   "twin_has_same_council": 0.9696969696969697,
+   "macro_f1_without_twins": 0.861856335473266,
+   "accuracy_without_twins": 0.8694229493698873
+  },
+  "0.9": {
+   "test_with_train_twin": 63,
+   "share": 0.002781702578594136,
+   "twin_has_same_council": 0.9365079365079365,
+   "macro_f1_without_twins": 0.8618031010536588,
+   "accuracy_without_twins": 0.8693823334071287
+  },
+  "0.8": {
+   "test_with_train_twin": 154,
+   "share": 0.006799717414341222,
+   "twin_has_same_council": 0.922077922077922,
+   "macro_f1_without_twins": 0.8616376886401536,
+   "accuracy_without_twins": 0.8692540232951009
+  },
+  "0.7": {
+   "test_with_train_twin": 281,
+   "share": 0.01240727658071353,
+   "twin_has_same_council": 0.9288256227758007,
+   "macro_f1_without_twins": 0.8612096395489779,
+   "accuracy_without_twins": 0.8687798989582868
+  }
+ },
+ "max_cos_quantiles": {
+  "0.5": 0.190067321062088,
+  "0.9": 0.32785704731941223,
+  "0.99": 0.7381016612052917
+ },
+ "time_mix": {
+  "test_share_start_2021_plus": 0.3651095019427764,
+  "macro_f1_test_start_lt_2021": 0.8656318492484636,
+  "macro_f1_test_start_2021_plus": 0.8550154193985833,
+  "macro_f1_test_start_2026_plus": 0.9205554979168072,
+  "n_test_start_2026_plus": 233
+ },
+ "fr8_award_band": {
+  "nominal, all neighbours (as deployed)": {
+   "n_queries": 5000,
+   "coverage_p25_p75": 0.5182,
+   "median_width_hi_over_lo": 4.068981787460077
+  },
+  "nominal, recency rule (neighbours and queries start < 2026)": {
+   "n_queries": 4930,
+   "coverage_p25_p75": 0.5178498985801218,
+   "median_width_hi_over_lo": 4.026240422340884
+  },
+  "CPIH real 2026 pounds, all neighbours": {
+   "n_queries": 5000,
+   "coverage_p25_p75": 0.519,
+   "median_width_hi_over_lo": 4.028896586723757
+  },
+  "CPIH real 2026 pounds, recency rule": {
+   "n_queries": 4930,
+   "coverage_p25_p75": 0.5198782961460446,
+   "median_width_hi_over_lo": 4.003129214668694
+  },
+  "share_of_priced_train_neighbour_pool_removed_by_rule": 0.01621603398287371
+ }
+}

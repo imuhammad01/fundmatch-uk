@@ -1,0 +1,18 @@
+{
+ "queries": 50,
+ "pairs": 150,
+ "labelled_by": "Grok Bot (assistant draft from titles only), pending human review by the group",
+ "scale": "2 = same research problem, 1 = related field or method, 0 = not relevant",
+ "P@3_relevant_ge1": 0.8466666666666667,
+ "share_highly_relevant": 0.26666666666666666,
+ "queries_with_at_least_one_relevant_in_top3": 0.98,
+ "queries_with_a_highly_relevant_in_top3": 0.6,
+ "MRR@3_highly_relevant": 0.4533333333333333,
+ "agreement_with_topic_proxy (rows with topics)": {
+  "n": 72,
+  "draft_relevant_when_topic_True": 0.9375,
+  "draft_relevant_when_topic_False": 0.8
+ },
+ "draft_relevant_when_same_council": 0.8490566037735849,
+ "draft_relevant_when_different_council": 0.8409090909090909
+}

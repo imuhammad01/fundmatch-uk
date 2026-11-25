@@ -24,6 +24,7 @@ import pandas as pd
 from pydantic import BaseModel, Field
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+from fundmatch.privacy import redact_org_name, redact_person_names
 from fundmatch.cpih import CAVEAT, TARGET_2026, TARGET_LABEL, SOURCE_URL, annual_index, to_real_gbp
 from fundmatch.demos import DEMOS
 from fundmatch.intelligence import (
@@ -36,6 +37,9 @@ from fundmatch.intelligence import (
     novelty_note,
     project_query,
 )
+from fundmatch.text import STOP_WORDS
+
+RECENT_START_YEAR = 2026  # FR-8: award bands use projects that started before this year
 from fundmatch.text import (
     MIN_WORDS,
     TOKEN_RE,
@@ -267,33 +271,25 @@ class FundMatchEngine:
     def __init__(self, art: Path = ART, data: Path = DATA):
         self._lock = threading.Lock()
         started = time.perf_counter()
-        meta = json.loads((art / "tfidf_lr_meta.json").read_text(encoding="utf-8"))
-        weights = np.load(art / "tfidf_lr_weights.npz")
-        self.classes: list[str] = list(meta["classes"])
-        self.vocab: list[str] = list(meta["vocab"])
-        self.index = {term: i for i, term in enumerate(self.vocab)}
-        self.idf = weights["idf"].astype(np.float64)
-        self.coef = weights["coef"].astype(np.float64)
-        self.intercept = weights["intercept"].astype(np.float64)
-        self.temperature = TEMPERATURE
-        self.token_re = TOKEN_RE
-        index = np.load(art / "svd_index_int8.npz")
-        z = index["Z_int8"].astype(np.float32)
-        z_scales = index["z_scales"].astype(np.float32)
-        self.z_unit = (z / 127.0) * z_scales[:, None]
-        c = index["C_int8"].astype(np.float32)
-        c_scales = index["c_scales"].astype(np.float32)
-        self.c_rec = (c / 127.0) * c_scales[:, None]
+        # RT-21: build the lexical index first, while little else is resident, so the
+        # vectoriser's temporary n-gram counts do not stack on top of the weights.
         # Arrow-backed strings keep the 113,233-row table compact. The OS is then
         # asked to return the vectorizer's temporary buffers so the resident set
         # stays inside a 1 GB Streamlit container with room to spare.
         frame = pd.read_parquet(data / "projects_meta.parquet", dtype_backend="pyarrow")
-        if len(frame) != self.z_unit.shape[0]:
-            raise RuntimeError("SVD rows and projects_meta.parquet disagree")
         banned = {"pi_name", "researcher", "person_name", "investigator", "orcid", "surname"}
         if banned.intersection({c.lower() for c in frame.columns}):
             raise RuntimeError("project table contains personal columns")
         self.frame = frame.reset_index(drop=True)
+        del frame
+        # NFR-9: a few public titles and sole-trader organisation names contain a
+        # person's name. Redact them once here so no view can show them.
+        for column, rule in (("title", redact_person_names), ("lead_org_name", redact_org_name)):
+            original = self.frame[column].fillna("").astype(str)
+            cleaned = original.map(rule)
+            changed = cleaned != original
+            if bool(changed.any()):
+                self.frame.loc[changed, column] = cleaned[changed]
         lexical_text = (
             self.frame["title"].fillna("").astype(str)
             + " "
@@ -307,6 +303,31 @@ class FundMatchEngine:
         )
         self.x_lexical = self.lexical.fit_transform(lexical_text.tolist())
         del lexical_text
+        gc.collect()
+        try:
+            ctypes.CDLL("libc.so.6").malloc_trim(0)
+        except OSError:
+            pass
+        meta = json.loads((art / "tfidf_lr_meta.json").read_text(encoding="utf-8"))
+        weights = np.load(art / "tfidf_lr_weights.npz")
+        self.classes: list[str] = list(meta["classes"])
+        self.vocab: list[str] = list(meta["vocab"])
+        self.index = {term: i for i, term in enumerate(self.vocab)}
+        self.idf = weights["idf"].astype(np.float64)
+        self.coef = weights["coef"].astype(np.float64)
+        self.intercept = weights["intercept"].astype(np.float64)
+        self.temperature = TEMPERATURE
+        self.token_re = TOKEN_RE
+        index = np.load(art / "svd_index_int8.npz")
+        # Dequantise in place: one float32 copy per matrix instead of three
+        # temporaries (RT-21, load-time peak memory).
+        self.z_unit = index["Z_int8"].astype(np.float32)
+        self.z_unit *= (index["z_scales"].astype(np.float32) / np.float32(127.0))[:, None]
+        self.c_rec = index["C_int8"].astype(np.float32)
+        self.c_rec *= (index["c_scales"].astype(np.float32) / np.float32(127.0))[:, None]
+        del index
+        if len(self.frame) != self.z_unit.shape[0]:
+            raise RuntimeError("SVD rows and projects_meta.parquet disagree")
         gc.collect()
         try:
             ctypes.CDLL("libc.so.6").malloc_trim(0)
@@ -336,7 +357,9 @@ class FundMatchEngine:
         self._stats: dict | None = None
 
     def _tokens(self, masked: str) -> list[str]:
-        return self.token_re.findall(masked.lower())
+        """Tokenise like the training ``TfidfVectorizer``: lowercase, ``\\b\\w\\w+\\b``,
+        then drop English stop words before n-grams are formed."""
+        return [token for token in self.token_re.findall(masked.lower()) if token not in STOP_WORDS]
 
     def vectorize(self, masked_texts: list[str]):
         """Sparse L2-normalised sublinear TF-IDF. ``masked_texts`` are already masked."""
@@ -568,9 +591,16 @@ class FundMatchEngine:
         amounts = subset["award_gbp"].to_numpy(dtype=np.float64)
         years = pd.to_numeric(subset["start_year"], errors="coerce").to_numpy()
         zero = int(np.sum(~np.isfinite(amounts) | (amounts <= 0)))
+        # FR-8 recency rule: projects that start in 2026 or later may not have their
+        # full award recorded yet, so they are left out of the percentiles. On a
+        # 5,000-query check this changes P25-P75 coverage by under 0.1 points
+        # (training/redteam/results/leakage_time_recency.json).
+        recent = int(np.sum(np.isfinite(amounts) & (amounts > 0) & np.isfinite(years) & (years >= RECENT_START_YEAR)))
         values = []
         for amount, year in zip(amounts, years):
             if not np.isfinite(amount) or amount <= 0:
+                continue
+            if np.isfinite(year) and year >= RECENT_START_YEAR:
                 continue
             year_i = None if not np.isfinite(year) else int(year)
             values.append(to_real_gbp(float(amount), year_i) if cpih else float(amount))
@@ -587,6 +617,7 @@ class FundMatchEngine:
             zero_note=(
                 f"{zero} of the {len(indices)} nearest projects have a £0 award "
                 "(studentships and other unpriced records) and are excluded from the percentiles."
+                + (f" {recent} priced project(s) starting in {RECENT_START_YEAR} or later are also left out (FR-8 recency rule)." if recent else "")
             ),
             cpih_target=TARGET_LABEL, cpih_index=TARGET_2026,
         )

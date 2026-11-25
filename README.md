@@ -8,6 +8,12 @@ Paste a title and an abstract. The app returns a calibrated shortlist of UKRI co
 
 This is not official UKRI funding advice. UKRI does not endorse it.
 
+**Live app:** https://scholarpulse-uk.streamlit.app/. The free host sleeps after 12 hours without visits. If you see the sleeping page, click "Yes, get this app back up!" and wait about a minute.
+
+**Requirements audit:** [`docs/REQUIREMENTS_AUDIT.md`](docs/REQUIREMENTS_AUDIT.md) checks every product requirement (FR-1 to FR-27, NFR-1 to NFR-14, the MoSCoW features and the marking map) against this code. It gives a status, the evidence, and a map from each requirement to its file or notebook section.
+
+**How the model was trained:** [`training/`](training/README.md) holds the collection and join scripts, the executed training notebook (outputs kept), the result tables, the figures and the group report. No Kaggle data, GtR bulk export or GtR-Extended data was used. All data was fetched by our own code from the public GtR API.
+
 ```
 title + abstract
       │
@@ -57,11 +63,18 @@ jupyter nbconvert --to notebook --execute --inplace notebooks/01_fundmatch_pipel
 
 ## Tests and speed
 
+Measured on 25 November 2026 (Python 3.13, this repository, 30 demo queries):
+- cold load: 3.5 s
+- median warm query: 118 ms, p95 161 ms
+- memory: about 600 MB resident after load
+
+The Streamlit Community Cloud limits page gives 690 MB minimum and 2.7 GB maximum memory. `pytest -q` passes 41 tests.
+
 ```bash
 pytest -q
 ```
 
-GitHub Actions runs the suite on Python 3.12. A warm council query is about 90 ms. `fundmatch benchmark` on the v3 build reported a cold start of 2.72 s, a median warm query of 90.1 ms, an int8 query of 86.8 ms, and 568 MB resident after load. Warm `POST /api/v1/topics`, `/coach`, `/redteam`, and `/hubs` stay under 150 ms because each uses one neighbour search and the calibrated logits, not five full analyses.
+GitHub Actions runs the suite on Python 3.12. Measured on 25 Nov 2026 on branch `shamim` (`training/redteam/results/engine_benchmark_quiet.json`): engine cold load 5.0 s, a median warm query of 135 ms (p95 230 ms) over 30 demo runs, about 544 MiB resident after load, and a load-time peak of 632 MiB (733 MiB before the RT-21 fix). The older v3 figures (2.72 s, 90 ms, 568 MB) no longer apply. Red-team findings and fixes are listed in `docs/RED_TEAM_AUTOPSY.md`. Warm `POST /api/v1/topics`, `/coach`, `/redteam`, and `/hubs` stay under 150 ms because each uses one neighbour search and the calibrated logits, not five full analyses.
 
 Real-terms pounds use ONS CPIH series L522. October 2026 is index 144.6, the latest month in the 18 November 2026 release. A full-year 2026 average is not published, so it is not used.
 

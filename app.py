@@ -134,6 +134,17 @@ def _money(value: float | None) -> str:
     return f"£{value:,.0f}"
 
 
+def _money_short(value: float | None) -> str:
+    """Compact pounds for metric tiles, so values are not cut off ("£191,..." on narrow columns)."""
+    if value is None:
+        return "—"
+    if abs(value) >= 1_000_000:
+        return f"£{value / 1_000_000:.2f}m"
+    if abs(value) >= 1_000:
+        return f"£{value / 1_000:.0f}k"
+    return f"£{value:,.0f}"
+
+
 def _paint(text: str, highlights: list) -> str:
     if not text:
         return ""
@@ -180,8 +191,9 @@ def render_match(result, expert: bool) -> None:
     with left:
         frame = pd.DataFrame([{"council": row.council, "probability": row.probability} for row in result.councils])
         chart = px.bar(frame, x="probability", y="council", orientation="h", color="council", color_discrete_map=COUNCIL_COLOURS)
-        chart.update_layout(showlegend=False, height=320, margin=dict(l=0, r=0, t=10, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#e7eef6"), xaxis=dict(range=[0, 1], tickformat=".0%", title=""), yaxis=dict(title="", categoryorder="total ascending"))
-        st.plotly_chart(chart, use_container_width=True)
+        chart.update_layout(showlegend=False, height=320, margin=dict(l=0, r=0, t=10, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#e7eef6"), xaxis=dict(range=[0, 1], tickformat=".0%", title="Calibrated probability"), yaxis=dict(title="UKRI council", categoryorder="total ascending"))
+        chart.update_traces(hovertemplate="%{y}: %{x:.1%} calibrated probability<extra></extra>")
+        st.plotly_chart(chart, width="stretch")
         links = " · ".join(f"[{row.council} calls]({row.funding_finder_url})" for row in result.councils[:3])
         st.markdown(f"Live UKRI Funding Finder: {links} · [Innovation Funding Service]({IFS})")
     with right:
@@ -189,9 +201,14 @@ def render_match(result, expert: bool) -> None:
         st.markdown("### Award band")
         if band and band.median is not None:
             c1, c2, c3 = st.columns(3)
-            c1.metric("P25", _money(band.p25))
-            c2.metric("Median", _money(band.median))
-            c3.metric("P75", _money(band.p75))
+            c1.metric("P25", _money_short(band.p25), help=_money(band.p25))
+            c2.metric("Median", _money_short(band.median), help=_money(band.median))
+            c3.metric("P75", _money_short(band.p75), help=_money(band.p75))
+            if band.n_positive < 10:
+                st.warning(
+                    f"Only {band.n_positive} of the {band.neighbours} nearest projects have a priced award, "
+                    "so this band rests on very few grants. Treat it as a rough guide."
+                )
             st.caption(f"P10–P90 {_money(band.p10)} – {_money(band.p90)} · {band.basis} · {band.n_positive} priced of {band.neighbours}")
             st.caption(band.zero_note)
             st.caption(band.caveat)
@@ -212,18 +229,19 @@ def render_match(result, expert: bool) -> None:
     with hosts:
         st.markdown("### Host organisations")
         if result.host_institutions:
-            st.dataframe(pd.DataFrame(result.host_institutions), hide_index=True, use_container_width=True)
+            st.dataframe(pd.DataFrame(result.host_institutions), hide_index=True, width="stretch")
         st.caption("Organisations only. No researcher names.")
     with schemes:
         st.markdown("### Scheme fit")
         if result.scheme_fit:
-            st.dataframe(pd.DataFrame(result.scheme_fit), hide_index=True, use_container_width=True)
+            st.dataframe(pd.DataFrame(result.scheme_fit), hide_index=True, width="stretch")
     if result.trends:
         trend = pd.DataFrame([row.model_dump() for row in result.trends])
-        fig = px.bar(trend, x="year", y="total_gbp", color="council", color_discrete_map=COUNCIL_COLOURS)
+        fig = px.bar(trend, x="year", y="total_gbp", color="council", color_discrete_map=COUNCIL_COLOURS,
+                     labels={"year": "Start year", "total_gbp": "Total awarded (£)", "council": "Council"})
         fig.update_layout(height=300, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#e7eef6"), legend_title="")
         st.markdown("### Topic funding by year")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
     if result.similar:
         st.markdown("### Similar funded projects")
         columns = {
@@ -231,7 +249,9 @@ def render_match(result, expert: bool) -> None:
             "title": [row.title for row in result.similar],
             "council": [row.lead_funder for row in result.similar],
             "scheme": [row.grant_category for row in result.similar],
-            "award": [row.award_gbp for row in result.similar],
+            "award (£)": [f"£{row.award_gbp:,.0f}" if row.award_gbp > 0 else "£0 · not priced" for row in result.similar],
+            "start": [row.fund_start for row in result.similar],
+            "end": [row.fund_end for row in result.similar],
             "organisation": [row.lead_org_name for row in result.similar],
             "GtR": [row.gtr_url for row in result.similar],
         }
@@ -239,7 +259,14 @@ def render_match(result, expert: bool) -> None:
             columns["semantic"] = [row.svd_cosine for row in result.similar]
             columns["lexical"] = [row.lexical_score for row in result.similar]
             columns["shared"] = [", ".join(row.shared_terms) for row in result.similar]
-        st.dataframe(pd.DataFrame(columns), hide_index=True, use_container_width=True, column_config={"GtR": st.column_config.LinkColumn("GtR", display_text="open")})
+        st.dataframe(
+            pd.DataFrame(columns), hide_index=True, width="stretch",
+            column_config={
+                "GtR": st.column_config.LinkColumn("GtR", display_text="open"),
+                "award (£)": st.column_config.TextColumn("award (£)", help="£0 · not priced means GtR records £0: studentships and other unpriced records."),
+            },
+        )
+        st.caption("“£0 · not priced” means GtR records £0 for that project (mostly studentships); these are left out of the award band. Organisations only, no researcher names.")
         st.download_button("Download CSV", ENGINE.to_csv(result.similar), "fundmatch-similar.csv", "text/csv", key="csv")
         st.download_button("Download Markdown brief", ENGINE.to_markdown(st.session_state.get("title", ""), result), "fundmatch-brief.md", "text/markdown", key="md")
 
@@ -306,7 +333,7 @@ def tab_sky() -> None:
             color_discrete_map=COUNCIL_COLOURS,
         )
         fig.update_layout(height=520, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(7,9,15,0.35)", font=dict(color="#e7eef6"), legend_title="", margin=dict(l=40, r=24, t=36, b=40))
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
     st.markdown("## What-if remixer")
     st.caption("Only add a phrase if it is true of the work. A higher council probability is not a reason to overstate the science.")
     target = st.selectbox("Target council", list(COUNCIL_INFO), key="what_target")
@@ -326,7 +353,7 @@ def tab_sky() -> None:
         fig.add_bar(name="before", x=chart["council"], y=chart["before"], marker_color="#56B4E9")
         fig.add_bar(name="after", x=chart["council"], y=chart["after"], marker_color="#009E73")
         fig.update_layout(barmode="group", height=320, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#e7eef6"), yaxis_tickformat=".0%")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
 
 def tab_compare() -> None:
@@ -338,11 +365,11 @@ def tab_compare() -> None:
     rows = st.session_state.get("arena_rows")
     if rows:
         frame = pd.DataFrame(rows)
-        st.dataframe(frame, hide_index=True, use_container_width=True)
+        st.dataframe(frame, hide_index=True, width="stretch")
         if frame["probability"].notna().any():
             fig = px.bar(frame, x="label", y="probability", color="top_council", color_discrete_map=COUNCIL_COLOURS)
             fig.update_layout(height=320, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#e7eef6"), yaxis_tickformat=".0%")
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
         st.download_button("Download comparison CSV", frame.to_csv(index=False).encode(), "fundmatch-compare.csv", "text/csv", key="arena_csv")
     st.markdown("## Batch")
     upload = st.file_uploader("CSV with title and abstract columns", type=["csv"], key="batch_file")
@@ -350,7 +377,7 @@ def tab_compare() -> None:
         frame = pd.read_csv(upload)
         result = ENGINE.analyze_batch(frame.to_dict(orient="records"))
         out = pd.DataFrame(result["rows"])
-        st.dataframe(out, hide_index=True, use_container_width=True)
+        st.dataframe(out, hide_index=True, width="stretch")
         st.download_button("Download batch CSV", out.to_csv(index=False).encode(), "fundmatch-batch.csv", "text/csv", key="batch_csv")
 
 
@@ -362,13 +389,13 @@ def tab_lab(expert: bool) -> None:
     b.metric("Accuracy", f"{info['test_accuracy']:.4f}")
     c.metric("Top-3", f"{info['test_top3']:.4f}")
     d.metric("RSS now", f"{ENGINE.rss_mb():.0f} MB")
-    st.dataframe(pd.DataFrame(info["calibration"]), hide_index=True, use_container_width=True)
+    st.dataframe(pd.DataFrame(info["calibration"]), hide_index=True, width="stretch")
     per = pd.DataFrame([{"council": k, "f1": v} for k, v in info["per_class_f1"].items()])
     fig = px.bar(per, x="council", y="f1", color="council", color_discrete_map=COUNCIL_COLOURS)
     fig.update_layout(showlegend=False, yaxis_range=[0.7, 1], height=300, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#e7eef6"))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption("BBSRC 0.780 and MRC 0.795 are the weaker classes. EPSRC and Innovate UK are the usual borderline pair.")
-    st.dataframe(pd.read_csv(ROOT / "artifacts" / "deployment_selection.csv"), hide_index=True, use_container_width=True)
+    st.dataframe(pd.read_csv(ROOT / "artifacts" / "deployment_selection.csv"), hide_index=True, width="stretch")
     if st.button("Compare float and int8 on the quantum demo", key="quant_go"):
         demo = DEMOS[0]
         fp = ENGINE.analyze(demo["title"], demo["abstract"])
@@ -379,7 +406,7 @@ def tab_lab(expert: bool) -> None:
         fp, iq = pair
         st.write(f"Float top {fp.top_council} {fp.councils[0].probability:.1%} in {fp.latency_ms:.0f} ms. Int8 top {iq.top_council} {iq.councils[0].probability:.1%} in {iq.latency_ms:.0f} ms.")
     st.markdown("### Lectures 1–8")
-    st.dataframe(pd.DataFrame(LECTURES, columns=["Lecture", "Technique", "In FundMatch"]), hide_index=True, use_container_width=True)
+    st.dataframe(pd.DataFrame(LECTURES, columns=["Lecture", "Technique", "In FundMatch"]), hide_index=True, width="stretch")
     if expert:
         st.json(ENGINE.metrics())
 
@@ -391,11 +418,11 @@ def tab_corpus() -> None:
     councils = pd.DataFrame(stats["councils"])
     fig = px.bar(councils, x="council", y="projects", color="council", color_discrete_map=COUNCIL_COLOURS)
     fig.update_layout(showlegend=False, height=300, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#e7eef6"))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     probe = st.text_input("Semantic probe", key="probe", placeholder="A short research phrase")
     if probe and len(probe.split()) >= 3:
         rows = ENGINE.search(probe, top_k=8)
-        st.dataframe(pd.DataFrame([{"similarity": r.similarity, "title": r.title, "council": r.lead_funder, "organisation": r.lead_org_name} for r in rows]), hide_index=True, use_container_width=True)
+        st.dataframe(pd.DataFrame([{"similarity": r.similarity, "title": r.title, "council": r.lead_funder, "organisation": r.lead_org_name} for r in rows]), hide_index=True, width="stretch")
     st.markdown("## About, ethics, and the limits")
     st.markdown(
         f"""
@@ -403,7 +430,11 @@ def tab_corpus() -> None:
 
 **Data.** {ENGINE.model_info['n_projects_index']:,} cleaned UKRI projects, collected {str(ENGINE.model_info['data_collected'])[:10]}. Person endpoints were not called. {OGL}
 
-**Model.** Temperature T = {ENGINE.temperature:.4f}. Held-out macro-F1 {ENGINE.model_info['test_macro_f1']}, accuracy {ENGINE.model_info['test_accuracy']}, top-3 {ENGINE.model_info['test_top3']}. ECE 0.0336 → 0.0180.
+**Model.** TF-IDF word and bigram features with class-weighted logistic regression, chosen over Linear SVM, Complement NB, MiniLM/BGE embedding models and an ensemble for accuracy, speed and memory (see the deployment table above). Temperature T = {ENGINE.temperature:.4f}. Held-out macro-F1 {ENGINE.model_info['test_macro_f1']}, accuracy {ENGINE.model_info['test_accuracy']}, top-3 {ENGINE.model_info['test_top3']} on 22,648 test projects. ECE 0.0336 → 0.0180.
+
+**Where it fails.** Weakest councils: BBSRC (F1 {ENGINE.model_info['per_class_f1']['BBSRC']}) and MRC (F1 {ENGINE.model_info['per_class_f1']['MRC']}), which share biomedical vocabulary; EPSRC and Innovate UK are the usual borderline pair. When the top probability is under 0.60, held-out accuracy was about 52% or worse, so the app shows a low-confidence warning. Projects that start after 2021 score lower (time-based macro-F1 0.827). Grants from other countries transfer less well (macro-F1 0.623).
+
+**Speed and availability.** A warm query takes about 0.1–0.2 s on the server. The free host sleeps after 12 hours without visits; click "Yes, get this app back up!" and wait about a minute.
 
 **Privacy.** Pasted abstracts stay in memory for the request. They are not logged. The neighbour table has organisations, not people.
 
@@ -425,7 +456,7 @@ def tab_corpus() -> None:
         ("NFR-8", "Okabe–Ito council colours"),
         ("NFR-9", "No researcher names, no stored abstracts"),
     ]
-    st.dataframe(pd.DataFrame(rows, columns=["Id", "Where it is met"]), hide_index=True, use_container_width=True)
+    st.dataframe(pd.DataFrame(rows, columns=["Id", "Where it is met"]), hide_index=True, width="stretch")
 
 
 def tab_journey(persona_id: str) -> None:
@@ -460,7 +491,7 @@ def tab_journey(persona_id: str) -> None:
             paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#e7eef6"), height=460, showlegend=False,
             margin=dict(l=90, r=90, t=50, b=50),
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
     with right:
         st.markdown("### Five working titles from real neighbours")
         for topic in topics:
@@ -503,14 +534,14 @@ def tab_waves() -> None:
         bars = px.bar(frame, x="year", y="projects", labels={"projects": "Funded projects", "year": "Start year"})
         bars.update_traces(marker_color="#5eead4")
         bars.update_layout(height=320, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(7,9,15,0.2)", font=dict(color="#e7eef6"), showlegend=False, margin=dict(l=48, r=24, t=36, b=40))
-        st.plotly_chart(bars, use_container_width=True)
+        st.plotly_chart(bars, width="stretch")
         line = px.line(frame, x="year", y="total_gbp_real_2026", labels={"total_gbp_real_2026": "£ at Oct 2026 prices", "year": "Start year"})
         line.update_traces(line_color="#c4b5fd")
         line.update_layout(height=280, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(7,9,15,0.2)", font=dict(color="#e7eef6"), showlegend=False, margin=dict(l=48, r=24, t=36, b=40))
-        st.plotly_chart(line, use_container_width=True)
+        st.plotly_chart(line, width="stretch")
     if trend["rising_terms"]:
         st.markdown("### Terms more common in the recent window")
-        st.dataframe(pd.DataFrame(trend["rising_terms"]), hide_index=True, use_container_width=True)
+        st.dataframe(pd.DataFrame(trend["rising_terms"]), hide_index=True, width="stretch")
     st.markdown("## Two fields at once")
     c1, c2 = st.columns(2)
     field_a = c1.text_input("Field A", value="music", key="fuse_a")
@@ -522,7 +553,7 @@ def tab_waves() -> None:
         st.write("Councils near both:", ", ".join(fusion["bridge_councils"]) or "none in the top 30 of each")
         for angle in fusion["angles"]:
             st.markdown(f'<div class="fm-card">{html.escape(angle)}</div>', unsafe_allow_html=True)
-        st.dataframe(pd.DataFrame(fusion["projects"])[["title", "lead_funder", "organisation", "similarity", "gtr_url"]], hide_index=True, use_container_width=True)
+        st.dataframe(pd.DataFrame(fusion["projects"])[["title", "lead_funder", "organisation", "similarity", "gtr_url"]], hide_index=True, width="stretch")
 
 
 def _bundle(persona_id: str) -> dict:
@@ -620,7 +651,7 @@ def tab_hubs(persona_id: str) -> None:
         font=dict(color="#e7eef6", size=12), legend_title="",
         margin=dict(l=210, r=24, t=36, b=40), yaxis={"categoryorder": "total ascending"},
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption("Counts are among the 60 nearest awards. Pounds are October 2026 CPIH prices. Organisations only.")
     for hub in rows:
         links = " · ".join(

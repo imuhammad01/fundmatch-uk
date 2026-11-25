@@ -10,12 +10,21 @@ from __future__ import annotations
 import re
 
 MIN_WORDS = 30
+MIN_DISTINCT_WORDS = 10
 # Real English abstracts sit well above 15% function words. The threshold is the
 # one measured against the UKRI training text, not a general language detector.
 ENGLISH_SHARE_MIN = 0.15
-# Single-letter entries cannot be produced by the token pattern ``\b\w\w+\b``.
-# They are stored because they are in the exported vectorizer configuration.
-STOP_WORDS = frozenset({"e", "g", "h", "i", "l", "n", "s"})
+# The CS5079 classifier was trained with ``TfidfVectorizer(stop_words="english")``
+# (checked against the original pickled pipeline). scikit-learn removes these words
+# BEFORE it builds bigrams, so "cultural and scientific" yields the bigram
+# "cultural scientific". The exported meta file listed only seven single letters,
+# and v4.0.0 skipped this step, which changed the logits by up to 1.07 and the top
+# council on 4 of 70 test texts (red-team finding RT-01). Use the real list.
+try:
+    from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS as _SK_STOP
+except Exception:  # pragma: no cover - scikit-learn is pinned in requirements.txt
+    _SK_STOP = frozenset()
+STOP_WORDS = frozenset(_SK_STOP)
 
 _FUNDER_TERMS = [
     r"engineering and physical sciences research council",
@@ -79,13 +88,27 @@ def check_input(title: str, abstract: str, recognised_terms: int | None = None) 
     alphabet, is what is measured.
     """
     text = proposal_text(title, abstract)
-    n_words = len(text.split())
-    if n_words == 0:
+    # Count real words (letters only), so "!!! !!! ..." or "12345 ..." cannot pass the
+    # length check by padding with symbols or numbers (red-team finding RT-03).
+    words = [word.lower() for word in _WORD_RE.findall(text) if len(word) >= 2]
+    n_words = len(words)
+    if n_words == 0 and not text.strip():
         return ["Enter a title and an abstract. Empty text cannot be matched to a council."], []
     if n_words < MIN_WORDS:
         return [
             f"Please give more detail: {n_words} words entered, and at least {MIN_WORDS} are needed "
-            "for a reliable council match. Add the aims, the methods, and who the work is for."
+            "for a reliable council match. Add the aims, the methods, and who the work is for. "
+            "Numbers and symbols do not count as words."
+        ], []
+    if len(set(words)) < MIN_DISTINCT_WORDS:
+        return [
+            f"The text repeats the same few words ({len(set(words))} different words). "
+            f"Please write at least {MIN_DISTINCT_WORDS} different words describing the aims and methods."
+        ], []
+    if recognised_terms is not None and recognised_terms == 0:
+        return [
+            "None of these words are in the 200,000-term research vocabulary, so any council score "
+            "would be meaningless. Describe the aims and methods in English."
         ], []
     warnings: list[str] = []
     share = english_share(text)

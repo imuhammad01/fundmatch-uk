@@ -1,0 +1,49 @@
+{
+ "model": "allenai/scibert_scivocab_uncased",
+ "n_train": 3000,
+ "n_val": 500,
+ "n_test": 1500,
+ "max_len": 128,
+ "batch": 16,
+ "epochs": 2,
+ "lr": 3e-05,
+ "seed": 42,
+ "max_train_seconds": 480,
+ "threads": 8,
+ "parameters_millions": 109.9,
+ "train_seconds_cpu": 494,
+ "history": [
+  {
+   "epoch": 1,
+   "steps_done": 188,
+   "steps_per_epoch": 188,
+   "val_macro_f1": 0.733245352278215,
+   "elapsed_s": 439,
+   "stopped_by_budget": false
+  },
+  {
+   "epoch": 2,
+   "steps_done": 18,
+   "steps_per_epoch": 188,
+   "val_macro_f1": 0.8037367838615161,
+   "elapsed_s": 494,
+   "stopped_by_budget": true
+  }
+ ],
+ "finetuned_test": {
+  "macro_f1": 0.7839144195296635,
+  "accuracy": 0.7786666666666666,
+  "top3": 0.9813333333333333,
+  "per_class_f1": {
+   "AHRC": 0.8235294117647058,
+   "BBSRC": 0.7186629526462396,
+   "EPSRC": 0.7564469914040115,
+   "ESRC": 0.7441860465116279,
+   "Innovate UK": 0.8162162162162162,
+   "MRC": 0.75,
+   "NERC": 0.7686567164179104,
+   "STFC": 0.8936170212765957
+  }
+ },
+ "test_inference_ms_per_doc_cpu": 23.6
+}

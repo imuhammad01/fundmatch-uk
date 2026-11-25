@@ -1,0 +1,151 @@
+query_title,rank,match_title,query_council,match_council,same council,shares topic,same scheme,relevant (group),"relevance (assistant draft, 0-2, NOT human-judged)"
+Investigating deliberative methods for setting a monetary capability threshold in the context of social care and public health,1,Measuring and valuing the broader patient benefits from health and care in economic evaluations,MRC,MRC,True,,False,,1
+Investigating deliberative methods for setting a monetary capability threshold in the context of social care and public health,2,Going beyond health related quality of life - towards a broader QALY measure for use across sectors,MRC,MRC,True,,True,,2
+Investigating deliberative methods for setting a monetary capability threshold in the context of social care and public health,3,Is &quot;end-of-life&quot; care more valuable? Measuring societal views using the new Q2S method,MRC,MRC,True,,True,,1
+Social and Occupational Contact Patterns and Risk of Acute Respiratory Infections,1,Winter respiratory risk prediction model in adults,MRC,MRC,True,,True,,1
+Social and Occupational Contact Patterns and Risk of Acute Respiratory Infections,2,Quantifying the structure of transmission networks for future epidemics,MRC,MRC,True,,False,,1
+Social and Occupational Contact Patterns and Risk of Acute Respiratory Infections,3,Advanced Statistical Methods for Infectious Disease Epidemiology with a focus on Human Social Contact Dynamics,MRC,EPSRC,False,,True,,2
+Tomographic Imaging: UK Collaborative Computational Projects,1,Large Field X-ray Tomographic Imaging,EPSRC,STFC,False,False,True,,1
+Tomographic Imaging: UK Collaborative Computational Projects,2,A Reconstruction Toolkit for Multichannel CT,EPSRC,EPSRC,True,False,True,,2
+Tomographic Imaging: UK Collaborative Computational Projects,3,Low-dose low-cost 3D X-ray imaging for reduction of CT referrals,EPSRC,Innovate UK,False,False,False,,1
+Unravelling mechanisms of wood decay fungal community change in the post-genomic era,1,Digging into the &quot;Gadgil effect&quot;: how the competitive balance between fungal guilds affects carbon and nitrogen cycling,NERC,NERC,True,True,True,,1
+Unravelling mechanisms of wood decay fungal community change in the post-genomic era,2,Role of fungal communities in carbon and nutrient cycling in forest soils under elevated atmospheric CO2 concentrations,NERC,NERC,True,False,False,,1
+Unravelling mechanisms of wood decay fungal community change in the post-genomic era,3,NSFDEB-NERC:Mycorrhizal drivers of SOM formation and decomposition,NERC,NERC,True,False,True,,1
+ASSESSING THE QUALITY OF TEST SUITES IN INDUSTRIAL CODE (&quot;AQUATIC&quot;),1,REFactoring and TESTing ('REFTEST') Network,EPSRC,EPSRC,True,True,True,,1
+ASSESSING THE QUALITY OF TEST SUITES IN INDUSTRIAL CODE (&quot;AQUATIC&quot;),2,Explorative Test Oracle Generation,EPSRC,EPSRC,True,True,True,,1
+ASSESSING THE QUALITY OF TEST SUITES IN INDUSTRIAL CODE (&quot;AQUATIC&quot;),3,Automatically Analysing and Improving Software Test Suite Health,EPSRC,EPSRC,True,False,False,,2
+Unwinding snail chirality by a massive subtractive linkage analysis (MSLA),1,Left-right asymmetry in Hawaiian 'Looking-glass' snails,BBSRC,BBSRC,True,False,False,,2
+Unwinding snail chirality by a massive subtractive linkage analysis (MSLA),2,"IMPC:Characterisation of 4933427D14Rik, an Lhx1 regulated gene, and specification of the left-right body axis",BBSRC,MRC,False,False,True,,1
+Unwinding snail chirality by a massive subtractive linkage analysis (MSLA),3,Investigating the Mechanisms Behind Symmetry Breaking and Cell Fate Specification in the Mouse Embryo,BBSRC,MRC,False,False,False,,1
+Delivering the birth component of Life Study: a longitudinal pilot for the national probability sample,1,Epigenetic responses to social and environmental cues in early life and over the life course: impact on healthy ageing in UK population-based cohorts,ESRC,ESRC,True,True,True,,1
+Delivering the birth component of Life Study: a longitudinal pilot for the national probability sample,2,"Pathways to peak lung function: Genetic, environmental and lifestyle influences on maximally attained lung function in young adults.",ESRC,MRC,False,False,True,,0
+Delivering the birth component of Life Study: a longitudinal pilot for the national probability sample,3,Statistical approaches for life course studies: developmental trajectories and adult health,ESRC,MRC,False,False,False,,1
+West Yorkshire Healthy Weight Ecosystem,1,Community Pharmacy weight management pathway accelerator,Innovate UK,Innovate UK,True,,True,,2
+West Yorkshire Healthy Weight Ecosystem,2,South West London ICB,Innovate UK,Innovate UK,True,,True,,0
+West Yorkshire Healthy Weight Ecosystem,3,Weight management model planning with Community Pharmacy,Innovate UK,Innovate UK,True,,True,,2
+Combining imaging and genomics to study brain development in preterm infants.,1,Sexual dimorphism in immune mediated preterm brain injury.,MRC,MRC,True,,True,,1
+Combining imaging and genomics to study brain development in preterm infants.,2,"A randomised, controlled trial of iodide supplementation in preterm infants",MRC,MRC,True,,False,,0
+Combining imaging and genomics to study brain development in preterm infants.,3,Computer aided diagnosis of neurological damage to improve care for infants born prematurely,MRC,EPSRC,False,,False,,1
+Network Measurement as a Service,1,IMC2: Instrumentation Measurement and Control for the Cloud,EPSRC,EPSRC,True,True,True,,2
+Network Measurement as a Service,2,SYNC: Synergistic Network Policy Management for Cloud Data Centres,EPSRC,EPSRC,True,True,True,,1
+Network Measurement as a Service,3,NaaS: Network-as-a-Service in the Cloud,EPSRC,EPSRC,True,True,True,,1
+Highly Nutritious Vegan Based Products,1,Enhancing Heritage Apple Cider Vinegar,Innovate UK,Innovate UK,True,,True,,0
+Highly Nutritious Vegan Based Products,2,Spray drying and atomisation of ginger juice as food/drink ingredients,Innovate UK,Innovate UK,True,,True,,0
+Highly Nutritious Vegan Based Products,3,"Reduction of Fats, Salts and Sugars and the Increase of Fibre in Premium Snacking Products",Innovate UK,Innovate UK,True,,True,,1
+Sounding the Anthropocene: site-based realisations of eco-critical aurality in the wetlands and the drylands,1,Scales of Change: Addressing Global Environmental Change through Transdisciplinary Sonic Practices,AHRC,AHRC,True,,True,,2
+Sounding the Anthropocene: site-based realisations of eco-critical aurality in the wetlands and the drylands,2,Sonic Fiction as a Mode of Ecological Sound Practice,AHRC,AHRC,True,,True,,2
+Sounding the Anthropocene: site-based realisations of eco-critical aurality in the wetlands and the drylands,3,Exploring the local in localisation: researching local identity and urban change within electroacoustic compositional practice,AHRC,AHRC,True,,True,,1
+Reactions of Stabilised Criegee Intermediates in the Atmosphere: Implications for Tropospheric Composition &amp; Climate,1,Impacts of Criegee intermediate decomposition and reaction with water determined by direct measurements in ozonolysis reactions,NERC,NERC,True,True,True,,2
+Reactions of Stabilised Criegee Intermediates in the Atmosphere: Implications for Tropospheric Composition &amp; Climate,2,Kinetic Studies of Reactive Intermediates from the Oxidation of Atmospheric Alkenes,NERC,NERC,True,True,True,,2
+Reactions of Stabilised Criegee Intermediates in the Atmosphere: Implications for Tropospheric Composition &amp; Climate,3,Better air quality through chemistry: Real-time monitoring of reactive trace species in key atmospheric reactions impacting air quality,NERC,NERC,True,False,False,,1
+Wall-crossing on universal compactified Jacobians,1,Moduli spaces of stable and unstable maps to curves and surfaces,EPSRC,EPSRC,True,False,False,,1
+Wall-crossing on universal compactified Jacobians,2,Projective embeddings of algebraic varieties,EPSRC,EPSRC,True,False,False,,0
+Wall-crossing on universal compactified Jacobians,3,Universal Moduli of Bundles on Curves,EPSRC,EPSRC,True,True,True,,2
+"Mosquitoes populations modelling for early warning system and rapid response public by health authorities correlating climate, weather and spatial-tem",1,"New approaches to modelling malaria transmission and insecticide resistance: using realistic mosquito biology and behaviour, and network methods.",NERC,EPSRC,False,False,False,,2
+"Mosquitoes populations modelling for early warning system and rapid response public by health authorities correlating climate, weather and spatial-tem",2,"Improving malaria risk assessment in Blantyre district, Malawi by optimizing Anopheles surveillance using open-source and real-time data",NERC,MRC,False,False,False,,2
+"Mosquitoes populations modelling for early warning system and rapid response public by health authorities correlating climate, weather and spatial-tem",3,Vector-borne RADAR (Real-time Arbovirus Detection And Response),NERC,BBSRC,False,True,True,,1
+Development of Anti-Angiogenic Oligosaccharides,1,Structure function analysis of vascular endothelial growth factor receptors in angiogenesis,MRC,MRC,True,,True,,1
+Development of Anti-Angiogenic Oligosaccharides,2,Leucine-rich alpha-2-glycoprotein 1 (Lrg1) as a novel modulator of TGFbeta signalling in disease,MRC,MRC,True,,True,,1
+Development of Anti-Angiogenic Oligosaccharides,3,Elucidating the extracellular role of FKBPL as a regulator of angiogenesis,MRC,BBSRC,False,,True,,1
+Interatomic Potentials for Small Molecule Radical Reactions,1,Developing a General Method for the Diarylation of Alkenes using Metallaphotoredox Catalysis,EPSRC,EPSRC,True,,True,,0
+Interatomic Potentials for Small Molecule Radical Reactions,2,Studies towards Enantioselective Silver-Catalysed C-H Amination via Nitrene Transfer using Multi-Functional Ligands,EPSRC,EPSRC,True,,True,,0
+Interatomic Potentials for Small Molecule Radical Reactions,3,Towards the Development of an Efficient One-Carbon Homologation Strategy for Alkenes,EPSRC,EPSRC,True,,True,,0
+"Hitting a moving target: The role of peptide-HLA flexibility during autoimmunity, transplant rejection, cancer and pathogen detection.",1,Exploring ERAP1 trimming in tapasin deficient cells and its impact on the predicted peptide repertoire,MRC,BBSRC,False,,False,,1
+"Hitting a moving target: The role of peptide-HLA flexibility during autoimmunity, transplant rejection, cancer and pathogen detection.",2,Identification of HLA-B*27 bound peptides involved in the pathogenesis of Ankylosing Spondylitis and Reactive Arthritis,MRC,MRC,True,,False,,2
+"Hitting a moving target: The role of peptide-HLA flexibility during autoimmunity, transplant rejection, cancer and pathogen detection.",3,Identifying HLA-bespoke changes to CD4+ T cell epitopes in influenza A virus derived antigens to drive superior protective and heterotypic immunity,MRC,MRC,True,,False,,1
+Development of ultrasonic probes to modulate synaptic activity of human stem cell-derived cortical neurons,1,Role of Sulfiredoxin-1 in maintaining neuronal function and redox homeostasis.,MRC,BBSRC,False,,True,,0
+Development of ultrasonic probes to modulate synaptic activity of human stem cell-derived cortical neurons,2,The Role of Neural Activity in Enhancing Axon and Presynaptic Regeneration in the Adult Injured Neocortex In Vivo,MRC,MRC,True,,False,,0
+Development of ultrasonic probes to modulate synaptic activity of human stem cell-derived cortical neurons,3,Targeting neuronal excitability in MND for high-throughput drug screening,MRC,MRC,True,,False,,1
+"Advanced III-nitride materials for next generation UV emitters used in water purification, environmental protection and local network communication",1,Free-standing wurtzite AlGaN substrates for deep ultraviolet (DUV) devices.,EPSRC,EPSRC,True,True,True,,2
+"Advanced III-nitride materials for next generation UV emitters used in water purification, environmental protection and local network communication",2,Fabrication of first 337 nm laser diodes for biological applications,EPSRC,EPSRC,True,True,True,,1
+"Advanced III-nitride materials for next generation UV emitters used in water purification, environmental protection and local network communication",3,Ultra energy efficient III-nitride/polymer hybrid white LEDs using nanotechnology,EPSRC,EPSRC,True,False,True,,1
+Knowledge and Other Minds,1,Three Essays on Idealism,AHRC,AHRC,True,True,False,,0
+Knowledge and Other Minds,2,Wittgenstein's Philosophy of Mind,AHRC,AHRC,True,True,True,,1
+Knowledge and Other Minds,3,Wittgenstein on Sensations and Subjectivity,AHRC,AHRC,True,True,False,,1
+The application of geostatistical analysis to the prediction and modelling of the decay dynamics of masonry materials,1,Re-purposing of mine waste material for carbon dioxide removal via enhanced rock weathering and mineral carbonation,EPSRC,NERC,False,False,False,,0
+The application of geostatistical analysis to the prediction and modelling of the decay dynamics of masonry materials,2,Advanced structural health monitoring for stone masonry structures - bringing new technology closer to market,EPSRC,EPSRC,True,True,True,,1
+The application of geostatistical analysis to the prediction and modelling of the decay dynamics of masonry materials,3,Accelerated carbon dioxide release from sedimentary rocks in a warming world,EPSRC,NERC,False,False,True,,0
+Industrialisation of precision cavity beam position monitors,1,"Fast, high precision, low cost position diagnostic for free electron lasers",STFC,STFC,True,True,True,,2
+Industrialisation of precision cavity beam position monitors,2,Enhancing ERL development in the UK,STFC,STFC,True,True,True,,0
+Industrialisation of precision cavity beam position monitors,3,Beam transport issues in high-power x-ray Free Electron Lasers,STFC,STFC,True,False,False,,1
+2012 Consolidated Grant for Sussex Experimental Particle Physics (EPP),1,Sussex Experimental Particle Physics 2015 Consolidated Grant,STFC,STFC,True,True,True,,2
+2012 Consolidated Grant for Sussex Experimental Particle Physics (EPP),2,Sussex EPP Rolling Grant 2009,STFC,STFC,True,True,True,,2
+2012 Consolidated Grant for Sussex Experimental Particle Physics (EPP),3,STFC Experimental Particle Physics 2018 Consolidated Grant,STFC,STFC,True,True,True,,1
+TRACING THE PROPHET OF SELF-EMANCIPATION: A life-geography of Walter Rodney's Marxist thought and activism (1942-1980),1,"Hybrid Expertise: Economic Knowledge Production in Tanzania, 1965-1985",ESRC,AHRC,False,,True,,1
+TRACING THE PROPHET OF SELF-EMANCIPATION: A life-geography of Walter Rodney's Marxist thought and activism (1942-1980),2,"Neoliberalism, Postcolonial Nationalism, and the Media: The Case of Jamaica and the reporting of the Black Lives Matter movement",ESRC,AHRC,False,,True,,1
+TRACING THE PROPHET OF SELF-EMANCIPATION: A life-geography of Walter Rodney's Marxist thought and activism (1942-1980),3,MSc Research for ID plus Mphil/PhD -Research Project: Transformation of the Tanzanian Working Class: From Ujamaa to Neoliberalism,ESRC,ESRC,True,,True,,1
+Role of clock genes in a mouse model for developmental origins of the metabolic syndrome,1,Circadian contol of metabolism: implications for health and disease,BBSRC,BBSRC,True,True,False,,2
+Role of clock genes in a mouse model for developmental origins of the metabolic syndrome,2,Circulating microRNAs as novel regulators of placental and fetal growth in pregnancies complicated by maternal diabetes,BBSRC,MRC,False,False,True,,1
+Role of clock genes in a mouse model for developmental origins of the metabolic syndrome,3,The analogue and digital clock: Role and mechanisms of analogue signalling in the brain's master circadian clock and its outputs.,BBSRC,BBSRC,True,True,True,,1
+Development of a laser-based sea-ice chlorophyll sensor,1,Diatom Autecological Responses with Changes To Ice Cover (Diatom-ARCTIC),NERC,NERC,True,True,True,,1
+Development of a laser-based sea-ice chlorophyll sensor,2,NI: Benthos of the Arctic as a Storage reservoir for sea-Ice Carbon,NERC,NERC,True,False,True,,0
+Development of a laser-based sea-ice chlorophyll sensor,3,Functional adaptation of diatoms to environmental conditions in sea ice of the Southern Ocean,NERC,NERC,True,True,True,,1
+The effect of reverberation on the representation of complex sounds in the lower auditory pathway,1,Selective Attention: How does Neural Response Modulation in Auditory Cortex Enable Auditory Scene Analysis?,BBSRC,BBSRC,True,True,True,,1
+The effect of reverberation on the representation of complex sounds in the lower auditory pathway,2,PERCEPTUAL DIFFICULTIES ASSOCIATED WITH HYPERACUSIS: ASSESSMENTS AND MODEL DEVELOPMENT,BBSRC,ESRC,False,True,True,,1
+The effect of reverberation on the representation of complex sounds in the lower auditory pathway,3,The neural basis of perceptual sensitivity to sound in auditory cortex of the mouse.,BBSRC,MRC,False,False,False,,1
+Exploring Remedial Training for Prosopagnosia in Children,1,Face processing in Alzheimer's disease - defining the deficit,ESRC,ESRC,True,,True,,1
+Exploring Remedial Training for Prosopagnosia in Children,2,A neuropsychological approach to dissect face perception and perceptual expertise,ESRC,ESRC,True,,False,,1
+Exploring Remedial Training for Prosopagnosia in Children,3,Using perceptual learning to understand and influence face recognition,ESRC,ESRC,True,,False,,2
+Arboricrop: next generation agriculture using real-time information from trees crops,1,POME Precision Orchard Management for Environment,Innovate UK,Innovate UK,True,,False,,2
+Arboricrop: next generation agriculture using real-time information from trees crops,2,SNAP - Sustainable Nitrogen Application Project,Innovate UK,Innovate UK,True,,False,,0
+Arboricrop: next generation agriculture using real-time information from trees crops,3,Sustainable intensification of top fruit production through precision orchard management using novel remote sensing technologies,Innovate UK,BBSRC,False,,False,,2
+Development of Practical Ionising Radiation Detectors and Dosimeters based on Quantum Dots,1,Synthesis and applications of quantum dots based on transition metal dichalcogenides,EPSRC,EPSRC,True,False,False,,1
+Development of Practical Ionising Radiation Detectors and Dosimeters based on Quantum Dots,2,Photonic nanostructures to revolutionise the position sensitivity of gamma-ray scintillator detectors,EPSRC,STFC,False,True,True,,1
+Development of Practical Ionising Radiation Detectors and Dosimeters based on Quantum Dots,3,Position reconstruction of gamma-ray interaction in scintillator crystals,EPSRC,STFC,False,True,True,,1
+Understanding the connection between explosive transients and their host galaxies.,1,The Host Galaxies of Long-Duration Gamma-Ray Bursts as High-Redshift Cosmological Probes,STFC,STFC,True,,True,,2
+Understanding the connection between explosive transients and their host galaxies.,2,The physics of energetic transients across the spectrum,STFC,STFC,True,,True,,2
+Understanding the connection between explosive transients and their host galaxies.,3,Gamma-ray bursts and multi-messenger astronomy Multi-messenger gravitational lensing Tidal disruptions of stars by supermassive black holes,STFC,STFC,True,,True,,1
+The bacterial type IV pilus machinery as a DNA translocator,1,Unraveling type IV pilus assembly,BBSRC,MRC,False,False,True,,2
+The bacterial type IV pilus machinery as a DNA translocator,2,Mechanism of pilus biogenesis by bacterial conjugative transfer systems,BBSRC,MRC,False,False,True,,1
+The bacterial type IV pilus machinery as a DNA translocator,3,Structural and molecular investigations of membrane-embedded pilus assembly nanomachines in Gram-negative bacterial pathogens,BBSRC,MRC,False,False,True,,2
+Personalised medicine in Joubert syndrome: patient-specific human urine-derived epithelial cells as a disease model and platform for therapeutic devel,1,Characterisation of a novel Joubert Syndrome (JS) model to accelerate personalised medicine: from patient to a kidney-in-a-dish via iPS cells.,MRC,MRC,True,,True,,2
+Personalised medicine in Joubert syndrome: patient-specific human urine-derived epithelial cells as a disease model and platform for therapeutic devel,2,"Models, modifiers and novel treatments of Joubert syndrome",MRC,MRC,True,,False,,2
+Personalised medicine in Joubert syndrome: patient-specific human urine-derived epithelial cells as a disease model and platform for therapeutic devel,3,Cellular and genetic models of inherited cystic kidney disease,MRC,MRC,True,,False,,1
+Nanostructural design of MnO2 cathodes for rechargeable aqueous Zn-ion batteries,1,Zinc Ion Batteries: Structural ENgineering for Severe Environment (SENSE),EPSRC,EPSRC,True,,False,,2
+Nanostructural design of MnO2 cathodes for rechargeable aqueous Zn-ion batteries,2,Engineering Robust Cathodes for Sustainable Energy Storage,EPSRC,EPSRC,True,,False,,1
+Nanostructural design of MnO2 cathodes for rechargeable aqueous Zn-ion batteries,3,Investigation into Non-Aqueous Aluminium Battery Materials for Enhanced Power and Capacity,EPSRC,EPSRC,True,,True,,1
+An alternative neutralization assay for H5N1 influenza A virus using retroviral pseudotypes,1,Virus specific memory T cell responses in H5N1 avian influenza virus infected patients,MRC,MRC,True,,True,,1
+An alternative neutralization assay for H5N1 influenza A virus using retroviral pseudotypes,2,Immune correlates to an inactivated H5N1 vaccine in humans,MRC,MRC,True,,True,,1
+An alternative neutralization assay for H5N1 influenza A virus using retroviral pseudotypes,3,Receptor binding studies of H5 haemagglutinins,MRC,MRC,True,,True,,1
+Novel semiochemicals for crop protection through synthetic biology,1,Development of novel semiochemicals for crop protection,BBSRC,BBSRC,True,,True,,2
+Novel semiochemicals for crop protection through synthetic biology,2,A new generation of insect resistant GM crops: transgenic wheat synthesising the aphid alarm signal,BBSRC,BBSRC,True,,True,,1
+Novel semiochemicals for crop protection through synthetic biology,3,Production of novel semiochemicals through synthetic biology for crop protection,BBSRC,EPSRC,False,,False,,2
+Establishing the Need - Finding the future market for UK photon sources,1,Sovereign High-Performance Entangled Photon Source for Quantum Networking (QNET-EPS),Innovate UK,Innovate UK,True,,False,,1
+Establishing the Need - Finding the future market for UK photon sources,2,Quantum Waveguides for Indistinguishable Single Photon Sources (QWISPS),Innovate UK,EPSRC,False,,False,,1
+Establishing the Need - Finding the future market for UK photon sources,3,Electrical and Electronic Engineering (PhD),Innovate UK,EPSRC,False,,False,,0
+Bioprocessing of High Concentration Protein Solutions: Quality by Digital Design Approach,1,Enabling rapid liquid and freeze-dried formulation design for the manufacture and delivery of novel biopharmaceuticals,BBSRC,EPSRC,False,False,True,,1
+Bioprocessing of High Concentration Protein Solutions: Quality by Digital Design Approach,2,Development of monoclonal antibody formulations to decrease aggregation during long-term storage using molecular simulations,BBSRC,EPSRC,False,False,False,,2
+Bioprocessing of High Concentration Protein Solutions: Quality by Digital Design Approach,3,THz-TDS: a new insight into protein solution formulation,BBSRC,Innovate UK,False,False,False,,1
+Design for Cleanability: understanding how physical design characteristics of domestic spaces impact the household cleaning experience,1,Revolutionising household cleaning for the good of people and planet - by Seep and Sustainable Ventures,AHRC,Innovate UK,False,,False,,1
+Design for Cleanability: understanding how physical design characteristics of domestic spaces impact the household cleaning experience,2,"Managing at Home in Times of Crisis: How Climate, COVID-19 and Cost of Living Crises Intersect in Everyday Life and What We Can Do About It",AHRC,EPSRC,False,,False,,0
+Design for Cleanability: understanding how physical design characteristics of domestic spaces impact the household cleaning experience,3,"'Interfaith connections at home: domestic space, practice and dialogue in contemporary London'",AHRC,AHRC,True,,False,,0
+Regulation of M-type K+ channel expression in sensory neurones as a novel mechanism contributing to chronic pain states,1,TRPM3 regulation of chronic pain,MRC,MRC,True,,True,,1
+Regulation of M-type K+ channel expression in sensory neurones as a novel mechanism contributing to chronic pain states,2,The role of CASPR2 in regulating sensory neuronal excitability and chronic pain,MRC,MRC,True,,True,,2
+Regulation of M-type K+ channel expression in sensory neurones as a novel mechanism contributing to chronic pain states,3,Targeting circadian mechanism for novel chronic pain treatments,MRC,MRC,True,,True,,1
+TCK Gas Powered Diesels,1,High Speed Dual Fuel Direct Injection Engines With Advanced EGR And Injection Strategies To Reduce The Carbon Dioxide Emissions,Innovate UK,EPSRC,False,,False,,2
+TCK Gas Powered Diesels,2,Decarbonising UK Industry through Low-Carbon Fuels: Evaluating Dimethyl Ether in Marine Applications,Innovate UK,EPSRC,False,,False,,1
+TCK Gas Powered Diesels,3,Decarbonising Freight Locomotives,Innovate UK,Innovate UK,True,,False,,1
+On the failure of composite panels under hyper-velocity,1,Next Generation Dynamic Fracture Methods using Ultra-High Speed Imaging,EPSRC,EPSRC,True,,True,,1
+On the failure of composite panels under hyper-velocity,2,Exploration of novel high strain rate impact tests for composites based on ultra-high speed photomechanics,EPSRC,EPSRC,True,,True,,2
+On the failure of composite panels under hyper-velocity,3,FULL-FIELD DATA-RICH EXPERIMENTAL APPROACHES TO EXPLAIN COMPOSITE MATERIAL AND STRUCTURAL PERFORMANCE AND ITS DAMAGE TOLERANCE,EPSRC,EPSRC,True,,False,,1
+A mixed-methods investigation of the role of illness perceptions in endometriosis,1,Centring LGBTQ+ women's experiences of endometriosis: A critical mixed-methods analysis,ESRC,ESRC,True,,True,,1
+A mixed-methods investigation of the role of illness perceptions in endometriosis,2,"Understanding Physical Activity for Women with Endometriosis Symptoms (PAWES): interplay of barriers, benefits and experiences in women from diverse..",ESRC,ESRC,True,,True,,1
+A mixed-methods investigation of the role of illness perceptions in endometriosis,3,Endometriosis: improving the well being of couples,ESRC,ESRC,True,,False,,1
+Redefining power generation from carbonaceous fuels with carbonate looping combustion and gasification technologies,1,"Clean heat, power, and hydrogen from biomass and waste",EPSRC,EPSRC,True,False,False,,1
+Redefining power generation from carbonaceous fuels with carbonate looping combustion and gasification technologies,2,Bio-CO2: Power Generation and Heat Recovery from Biomass with Advanced CO2 Thermodynamic Power Cycles and Novel Heat Exchanger Designs,EPSRC,EPSRC,True,False,True,,0
+Redefining power generation from carbonaceous fuels with carbonate looping combustion and gasification technologies,3,Calix Endex Reactor carbon capture technology feasibility study,EPSRC,Innovate UK,False,False,False,,1
+Development of an infection detecting wound dressing,1,INTELLIHEAL,Innovate UK,Innovate UK,True,,True,,1
+Development of an infection detecting wound dressing,2,Encapsulated phage for treatment of burns and wound site infections,Innovate UK,EPSRC,False,,False,,1
+Development of an infection detecting wound dressing,3,ICF: Novel Antimicrobial Peptides for Local Wound Sepsis Control,Innovate UK,MRC,False,,False,,1
+"Symmetry-restored two-centre self-consistent approach to fission with arbitrary deformations, orientations, and distance of fragments",1,Beta delayed fission at ISOLDE: Tl and At isotopes,STFC,STFC,True,True,True,,1
+"Symmetry-restored two-centre self-consistent approach to fission with arbitrary deformations, orientations, and distance of fragments",2,Fission and fusion in the complete fusion reactions leading to the neutron-deficient 180Hg isotope,STFC,STFC,True,True,True,,1
+"Symmetry-restored two-centre self-consistent approach to fission with arbitrary deformations, orientations, and distance of fragments",3,A microscopic description of nuclear fission for r-process nucleosynthesis,STFC,STFC,True,False,False,,2
+Industrial Biotechnology Innovation Cluster,1,Turing Innovation Catalyst Manchester (TIC).,EPSRC,Innovate UK,False,False,False,,0
+Industrial Biotechnology Innovation Cluster,2,Launchpad Cluster Management for the Bio-based manufacturing innovation cluster in Scotland,EPSRC,Innovate UK,False,False,False,,2
+Industrial Biotechnology Innovation Cluster,3,STREAM 2: CyberFocus - Cyber Impact for the North West,EPSRC,EPSRC,True,False,False,,0
+Heidegger's Intuition Thesis in Kant and the Problem of Metaphysics,1,The London Post-Kantian Seminar,AHRC,AHRC,True,,False,,1
+Heidegger's Intuition Thesis in Kant and the Problem of Metaphysics,2,"Reason, Right, and Revolution: Practical Philosophy between Kant and Hegel.",AHRC,AHRC,True,,False,,1
+Heidegger's Intuition Thesis in Kant and the Problem of Metaphysics,3,Kantian Propositional Attitudesand Doxastic Norms,AHRC,AHRC,True,,True,,1
+Breaking characteristics of large amplitude internal solitary waves,1,Mathematical Modelling of Nonlinear Ring Waves of Moderate Amplitude in Fluids,EPSRC,EPSRC,True,False,False,,1
+Breaking characteristics of large amplitude internal solitary waves,2,A New Mechanism for Generation of Internal Waves,EPSRC,NERC,False,False,True,,2
+Breaking characteristics of large amplitude internal solitary waves,3,Boiling Water in the Strait of Gibraltar,EPSRC,NERC,False,False,True,,1

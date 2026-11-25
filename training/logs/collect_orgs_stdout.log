@@ -1,0 +1,39 @@
+[organisations] 97102 records in 972 pages; collecting 972
+[organisations] page 50/972  (51s)
+[organisations] page 100/972  (103s)
+[organisations] page 150/972  (158s)
+[organisations] page 200/972  (211s)
+[organisations] page 201: HTTP 503, retry in 1s
+[organisations] page 201: HTTP 503, retry in 2s
+[organisations] page 201: HTTP 503, retry in 4s
+[organisations] page 201: HTTP 503, retry in 8s
+[organisations] page 201: HTTP 503, retry in 16s
+[organisations] page 250/972  (295s)
+[organisations] page 300/972  (348s)
+[organisations] page 350/972  (401s)
+[organisations] page 400/972  (453s)
+[organisations] page 450/972  (505s)
+[organisations] page 500/972  (558s)
+[organisations] page 550/972  (609s)
+[organisations] page 600/972  (659s)
+[organisations] page 650/972  (710s)
+[organisations] page 700/972  (761s)
+[organisations] page 750/972  (811s)
+[organisations] page 800/972  (863s)
+[organisations] page 850/972  (914s)
+[organisations] page 900/972  (964s)
+[organisations] page 950/972  (1019s)
+done: {
+  "projects": {
+    "collected_utc": "debug"
+  },
+  "organisations": {
+    "collected_utc": "2026-11-23T19:41:37+00:00",
+    "api_total_records": 97102,
+    "api_total_pages": 972,
+    "pages_requested": 972,
+    "pages_fetched_this_run": 972,
+    "seconds": 1040.9,
+    "delay_s": 1.0
+  }
+}

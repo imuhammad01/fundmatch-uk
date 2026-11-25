@@ -8,3 +8,6 @@ __pycache__/
 .ipynb_checkpoints/
 data/raw/
 data/processed/
+!training/logs/*.log
+training/data/
+training/.venv/

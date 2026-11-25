@@ -4,7 +4,7 @@ Format follows Mitchell et al. (2019), “Model Cards for Model Reporting”.
 
 ## Overview
 
-ScholarPulse UK (package `fundmatch`) scores a research title and abstract against eight UKRI councils and retrieves similar funded Gateway to Research projects. The classifier is a class-weighted logistic regression on 200,000 sublinear word and bigram TF-IDF features, with temperature scaling. It was trained for CS5079 Applied AI at the University of Aberdeen and exported so that numpy logits match the original scikit-learn pipeline (`max_logit_diff <= 1e-6`).
+ScholarPulse UK (package `fundmatch`) scores a research title and abstract against eight UKRI councils and retrieves similar funded Gateway to Research projects. The classifier is a class-weighted logistic regression on 200,000 sublinear word and bigram TF-IDF features, with temperature scaling. It was trained for CS5079 Applied AI at the University of Aberdeen and exported so that numpy logits match the original scikit-learn pipeline. The v4.0.0 export skipped the English stop-word step before bigrams, so its logits differed by up to 3.3 and its top council disagreed on 2.15% of 3,070 texts (red-team RT-01). On branch `shamim` the engine removes the same stop words as training; the largest logit gap is now 1.0e-5 with 100% top-council agreement, checked against the original pickle by `tests/test_red_team.py` (fixture `tests/fixtures/sklearn_parity.json`).
 
 - **Version:** 4.0.0
 - **Snapshot:** 23 November 2026, 113,233 cleaned projects
@@ -39,7 +39,7 @@ Lead funder is a single label. Joint grants and interdisciplinary work are the m
 
 The displayed 90% set is the top council only when its probability is at least 0.80, because that published confidence bin was 94.3% accurate. Otherwise, and always for the 95% set, the set is the top three councils, because top-3 test accuracy was 0.9916.
 
-A separate split-conformal quantile was fit on 2,000 real project titles (250 per council, seed 42), using title + department + scheme because abstracts are not in the shipped table and the original test-row scores were not exported. Those title quantiles are near 1 and are stored in `artifacts/conformal_aps.json`. They are not used as the displayed set, and they are not a new coverage certificate for the 22,648-row test set.
+A separate split-conformal quantile was fit on 2,000 real project titles (250 per council, seed 42), using title + department + scheme because abstracts are not in the shipped table and the original test-row scores were not exported. Those title quantiles are near 1 and are stored in `artifacts/conformal_aps.json`. They are not used as the displayed set, and they are not a new coverage certificate for the 22,648-row test set. They and the novelty reference were rebuilt with the fixed vectoriser (RT-01): the 90% quantile moved from 0.9985 to 0.9981 and the median novelty cosine from 0.808 to 0.807.
 
 ## Novelty
 
@@ -47,7 +47,7 @@ Novelty compares the proposal’s maximum cosine in the 64-d abstract index with
 
 ## Quantisation
 
-`artifacts/tfidf_lr_weights_int8.npz` is about 0.78 MB. On a 45-text check against the float model, top-1 agreement was 0.978 and the largest probability gap was 0.030. The float model remains the default.
+`artifacts/tfidf_lr_weights_int8.npz` is about 0.78 MB. Re-measured after the RT-01 fix (`training/redteam/results/assets_rebuild.json`): on the 10 demos plus 40 titles, top-1 agreement with the float model was 0.98 and the largest probability gap 0.029; on 2,000 random titles it was 0.991 and 0.039. The float model remains the default.
 
 ## Student-stage tools (v3)
 
