@@ -186,7 +186,7 @@ These were not edited (`submission_final/` and `task2_shamim/` are untouched).
 5. Nothing in the report or the PRD contradicts the Won't-have list; the report does not describe the new Idea Studio.
 
 
-**Live check (28 Nov 2026, after the push).** The deployed app was reloaded in a headless browser after the v5.1 push: the header shows "V5 · NEON EDITION · IDEA STUDIO", the Idea Studio tab is present, and the example idea scores EPSRC 87.9% (about 88%) with a 94.3% test accuracy at that confidence band. The footer was checked by the AppTest suite (tests/test_v5_audit.py), not by a live screenshot.
+**Live check (28 Nov 2026, after the v5.1 push).** The deployed app was reloaded in a headless browser after the v5.1 push: the header shows "V5 · NEON EDITION · IDEA STUDIO", the Idea Studio tab is present, and the example idea scores EPSRC 87.9% (about 88%) with a 94.3% test accuracy at that confidence band. The footer was checked by the AppTest suite (tests/test_v5_audit.py), not by a live screenshot.
 
 ### Extra features after the audit (V5.2: Gap finder and 3D idea map)
 
@@ -204,13 +204,13 @@ These two Idea Studio tools were added on 28 November 2026 after Shamim asked fo
 
 **What the Gap finder can and cannot say.** It compares sub-topics with each other inside one neighbourhood, so "under-explored" means "small and thinly funded compared with the other sub-topics near this idea". It cannot say the area is neglected nationally, that a call is open, or that a proposal would be funded. Sub-topics come from a rough clustering and can change on a different idea. Sub-topics with fewer than three priced projects are marked because their £0 is unpriced records.
 
-**For the example idea** (the quantum demo): 273 of the 400 nearest projects are kept. Under-explored: qubit tuning with machine learning (24 projects, all unpriced studentships, so funding is unknown); superconducting amplifiers and sensors (21 projects, £4.71m, shrinking); optical and spin control dynamics (28 projects, £6.36m, flat). Crowded: hybrid quantum interfaces and networks (55 projects, £26.3m, growing); trapped-ion computing (45 projects, £0.98m, shrinking). The EPSRC result for the example is unchanged at 87.9%.
+**For the example idea** (the quantum demo, as shown on the live app): 273 of the 400 nearest projects are kept and grouped into 8 sub-topics. Under-explored: qubit tuning with machine learning (11 projects, all unpriced studentships, so funding is unknown); learning, computers and quantum simulation (14 projects, all unpriced); superconducting amplifiers and electronics (24 projects, £6.46m, 9 of 24 priced, median £767k). Crowded: quantum networks and interfaces (48 projects, £29.93m); trapped-ion and logical computing (56 projects, only 1 priced). All five trends are flat. Sub-topic sizes can vary slightly between platforms (the Linux test machine gave 24 projects for the first group), because the k-means result depends on floating-point details. The EPSRC result for the example is unchanged at 87.9%.
 
 **Tests.** `pytest -q` now passes 103 tests (80 before V5.2): 23 new in `tests/test_v52_gaps.py` plus the extended axis test. Version label bumped to 5.2.0 (`brand.py`, `__init__.py`, `pyproject.toml`, the API version test).
 
 **Does this make the submitted report stale?** It already lists the Idea Studio tools in general terms and does not claim a fixed tool list, so the new tools do not contradict it. The earlier mismatches still stand and are slightly larger: the report says 61 tests (now 103), version 5.0.0 (now 5.2.0) and a 819 MiB peak (now 613 to 618 MB), and Figure 6 and the submitted code zip show the V4 look and code.
 
-## Round 2: red-team pass (25 Nov 2026)
+**Live check of V5.2 (28 Nov 2026, 11:13 UK time).** After the push (commit e0e2d0c) the deployed app showed the label "V5.2 · NEON EDITION · GAP FINDER · 3D MAP", the example idea scored EPSRC 87.9%, the Gap finder showed its caveat, 3 under-explored and 2 crowded sub-topics, the crowdedness-against-growth chart and 38 GtR links, and the 3D idea map rendered with the idea marker, in both colour modes. Screenshots: `gap_live_*.png` and `gap_3d_live_*.png`.\n\n## Round 2: red-team pass (25 Nov 2026)
 
 The full findings are in [`RED_TEAM_AUTOPSY.md`](RED_TEAM_AUTOPSY.md): 21 findings, of which 1 is Critical, 3 High, 9 Medium, 5 Low and 3 Info.
 
