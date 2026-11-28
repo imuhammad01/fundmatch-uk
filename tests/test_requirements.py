@@ -96,7 +96,7 @@ def test_fr3_fr4_collect_pages_checkpoints_resumes_and_logs(tmp_path):
     second = cg.collect("projects", dest, pause=0, fetch=fetch)
     assert fetched == [3]  # only the missing page is fetched again
     assert second["pages_fetched_this_run"] == 1
-    log = json.loads((tmp_path / "raw" / "collection_log.json").read_text())
+    log = json.loads((tmp_path / "raw" / "collection_log.json").read_text(encoding="utf-8"))
     assert log["projects"]["api_total_records"] == 8
     assert log["projects"]["collected_utc"].startswith("20")
     assert len(list(cg.iter_records(dest))) == 8
@@ -108,11 +108,11 @@ def test_fr4_dated_snapshot_and_sidecar(tmp_path):
     meta = cg.save_snapshot(frame, tmp_path, collected_utc="2026-11-23T19:35:16+00:00")
     assert meta["file"] == "gtr_projects_2026-11-23.parquet" and meta["rows"] == 2
     assert len(pd.read_parquet(tmp_path / meta["file"])) == 2
-    assert json.loads((tmp_path / "gtr_projects_2026-11-23.json").read_text())["rows"] == 2
+    assert json.loads((tmp_path / "gtr_projects_2026-11-23.json").read_text(encoding="utf-8"))["rows"] == 2
 
 
 def test_fr4_shipped_collection_log_records_date_and_counts():
-    log = json.loads((ROOT / "training" / "logs" / "collection_log.json").read_text())
+    log = json.loads((ROOT / "training" / "logs" / "collection_log.json").read_text(encoding="utf-8"))
     assert log["projects"]["api_total_records"] == 158710
     assert log["projects"]["collected_utc"].startswith("2026-11-23")
     assert log["projects"]["delay_s"] >= 0.5
@@ -173,7 +173,7 @@ def test_fr8_date_filter_reports_counts():
 
 @pytest.fixture(scope="module")
 def summary():
-    return json.loads((ROOT / "training" / "models" / "summary.json").read_text())
+    return json.loads((ROOT / "training" / "models" / "summary.json").read_text(encoding="utf-8"))
 
 
 def test_fr12_nfr1_deployed_model_beats_baselines(summary):
@@ -202,7 +202,7 @@ def test_fr13_fr14_retrieval_and_award_metrics(summary):
 
 
 def test_fr15_per_class_f1_and_fr16_tuning(summary):
-    info = json.loads((ROOT / "artifacts" / "model_info.json").read_text())
+    info = json.loads((ROOT / "artifacts" / "model_info.json").read_text(encoding="utf-8"))
     assert set(info["per_class_f1"]) == set(COUNCILS)
     assert summary["tuning"]["lr"][0] == 32.0
 
@@ -215,7 +215,7 @@ def test_fr17_deployment_table_lists_runners_up():
 
 
 def test_nfr5_training_notebook_has_outputs_and_no_errors():
-    nb = json.loads((ROOT / "training" / "FundMatch_Task1.ipynb").read_text())
+    nb = json.loads((ROOT / "training" / "FundMatch_Task1.ipynb").read_text(encoding="utf-8"))
     code = [c for c in nb["cells"] if c["cell_type"] == "code"]
     assert len(code) >= 30 and all(c.get("outputs") for c in code)
     assert not any(o.get("output_type") == "error" for c in code for o in c["outputs"])

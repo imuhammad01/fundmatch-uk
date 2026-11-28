@@ -10,8 +10,9 @@ typer==0.20.0
 rich==14.2.0
 streamlit==1.67.0
 plotly==7.1.0
+fpdf2==2.8.9
 pytest==8.3.5
 httpx==0.28.1
 nbconvert==7.16.6
 ipykernel==6.30.1
-# 2026-11-25 v4.1: requirements unchanged; this comment forces Streamlit Cloud to restart so the new engine module loads
+# 2026-11-28 v5.0: adds fpdf2 for the PDF brief; this change also restarts Streamlit Cloud

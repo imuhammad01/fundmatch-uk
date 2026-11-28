@@ -14,11 +14,12 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-from fundmatch.brand import APP_DISPLAY_NAME, APP_EDITION, APP_TAGLINE
+from fundmatch import insights
+from fundmatch.brand import APP_DISPLAY_NAME, APP_EDITION, APP_TAGLINE, APP_VERSION
 from fundmatch.futuristic import research_dossier
 from fundmatch.cpih import CAVEAT, SOURCE_URL, TARGET_LABEL
 from fundmatch.demos import DEMOS
-from fundmatch.engine import COUNCIL_COLOURS, COUNCIL_INFO, DISCLAIMER, IFS, OGL, get_engine
+from fundmatch.engine import COUNCIL_COLOURS, COUNCIL_INFO, DISCLAIMER, IFS, OGL, funding_finder_url, get_engine
 from fundmatch.student import PERSONAS
 
 st.set_page_config(page_title=APP_DISPLAY_NAME, page_icon="◈", layout="wide")
@@ -44,88 +45,8 @@ LECTURES = [
     ("L8", "int8 weights, memory budget, cascades", "used"),
 ]
 
-st.markdown(
-    """
-    <style>
-    [data-testid="stHeader"] {
-      background: rgba(5, 8, 16, 0.55) !important;
-      backdrop-filter: blur(10px);
-      height: 2.6rem;
-    }
-    [data-testid="stAppViewContainer"], .stApp {
-      background:
-        radial-gradient(900px 420px at 8% -10%, rgba(94, 234, 212, 0.16), transparent 55%),
-        radial-gradient(800px 480px at 100% 0%, rgba(167, 139, 250, 0.16), transparent 50%),
-        radial-gradient(700px 400px at 70% 110%, rgba(16, 185, 129, 0.10), transparent 45%),
-        #07090f;
-      color: #e7eef6;
-    }
-    [data-testid="stMainBlockContainer"],
-    [data-testid="stAppViewContainer"] > .main .block-container,
-    .block-container {
-      padding-top: 5.5rem !important;
-      padding-bottom: 3rem;
-      max-width: 1180px;
-    }
-    .fm-kicker {letter-spacing: .18em; text-transform: uppercase; font-size: .72rem; color: #9fb0c3;}
-    .fm-card, .fm-hero {
-      border: 1px solid rgba(94, 234, 212, 0.35);
-      border-radius: 18px;
-      padding: 16px 18px;
-      background: rgba(12, 18, 28, 0.72);
-      box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.08), 0 18px 50px rgba(0, 0, 0, 0.28);
-      margin-bottom: 12px;
-    }
-    .fm-hero {margin-top: 0.35rem;}
-    .fm-kpis {display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;}
-    .fm-kpi, .fm-stage {
-      border: 1px solid rgba(94, 234, 212, 0.45);
-      border-radius: 999px;
-      padding: 6px 12px;
-      font-size: 0.82rem;
-      color: #e7eef6;
-      background: rgba(94, 234, 212, 0.10);
-    }
-    .fm-stage {
-      display: inline-block;
-      margin: 0.15rem 0 0.7rem;
-      border-color: rgba(196, 181, 253, 0.75);
-      color: #f3e8ff;
-      background: rgba(167, 139, 250, 0.16);
-      box-shadow: 0 0 22px rgba(167, 139, 250, 0.28);
-    }
-    .fm-high {border-color: #fb7185; color: #ffe4e6; background: rgba(244, 63, 94, 0.16);}
-    .fm-watch {border-color: #fbbf24; color: #fef3c7; background: rgba(245, 158, 11, 0.16);}
-    .fm-solid {border-color: #34d399; color: #d1fae5; background: rgba(16, 185, 129, 0.16);}
-    div.stButton > button {
-      border-radius: 999px;
-      border: 1px solid rgba(231, 238, 246, 0.18);
-      background: rgba(16, 22, 32, 0.9);
-      color: #e7eef6;
-      white-space: nowrap !important;
-      overflow: visible !important;
-      text-overflow: clip !important;
-      min-height: 2.5rem;
-      padding: 0.35rem 0.7rem;
-      font-size: 0.86rem;
-    }
-    div.stButton > button p {
-      white-space: nowrap !important;
-      overflow: visible !important;
-      text-overflow: clip !important;
-    }
-    div.stButton > button:hover {border-color: #5eead4; color: #5eead4;}
-    div.stButton > button[kind="primary"] {
-      background: linear-gradient(90deg, #0f766e, #5eead4);
-      color: #04120f;
-      border: none;
-      font-weight: 650;
-    }
-    mark {border-radius: 3px;}
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+CSS = (ROOT / "src" / "fundmatch" / "assets" / "neon.css").read_text(encoding="utf-8")
+st.markdown(CSS, unsafe_allow_html=True)
 
 
 def _money(value: float | None) -> str:
@@ -667,6 +588,338 @@ def tab_hubs(persona_id: str) -> None:
         )
 
 
+# ----------------------------------------------------------------------------- V5 · Neon Edition
+
+def _style(fig, height: int = 320):
+    fig.update_layout(
+        height=height, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(7,9,15,0.25)",
+        font=dict(color="#e7eef6", size=12), margin=dict(l=10, r=16, t=30, b=30), legend_title="",
+    )
+    fig.update_xaxes(gridcolor="rgba(148,163,184,0.12)", zerolinecolor="rgba(148,163,184,0.25)")
+    fig.update_yaxes(gridcolor="rgba(148,163,184,0.12)", zerolinecolor="rgba(148,163,184,0.25)")
+    return fig
+
+
+def _idea() -> tuple[str, str]:
+    return (st.session_state.get("title") or ""), (st.session_state.get("abstract") or "")
+
+
+def _live(top_k: int = 10):
+    """One cached analysis of the current idea per (text, top_k)."""
+    title, abstract = _idea()
+    key = (title, abstract, top_k)
+    cache = st.session_state.setdefault("_live_cache", {})
+    if key not in cache:
+        if len(cache) > 6:
+            cache.clear()
+        cache[key] = ENGINE.analyze(title, abstract, top_k=top_k)
+    return cache[key]
+
+
+def _tile(label: str, value: str, sub: str = "", tone: str = "sp-neon", bar: float | None = None) -> str:
+    meter = f'<div class="sp-bar"><span style="width:{max(0.0, min(1.0, bar)) * 100:.1f}%"></span></div>' if bar is not None else ""
+    return (
+        f'<div class="sp-tile"><div class="sp-label">{html.escape(label)}</div>'
+        f'<div class="sp-value {tone}">{html.escape(value)}</div>'
+        f'<div class="sp-sub">{html.escape(sub)}</div>{meter}</div>'
+    )
+
+
+def onboarding() -> None:
+    if st.session_state.get("guide_hidden"):
+        return
+    with st.expander("✦ New here? How to use ScholarPulse in four steps", expanded=True):
+        steps = [
+            ("Describe the idea", "Pick your stage, then type a title and a short abstract, or tap a demo chip. 30 words is the minimum; 100+ is better."),
+            ("Read the mission brief", "The panel under the button shows the most likely UKRI council, how reliable that number is, and the honest uncertainty."),
+            ("Open Proposal Studio", "See which words drive the prediction, run the draft checklist, find vocabulary used by nearby funded projects, and compare two ideas."),
+            ("Check precedents and export", "Filter real funded projects by council, year and amount, then download a PDF brief and open the live calls on UKRI Funding Finder."),
+        ]
+        st.markdown(
+            '<div class="sp-grid sp-steps">' + "".join(
+                f'<div class="sp-tile sp-step"><div class="sp-label">{html.escape(head)}</div><div class="sp-sub">{html.escape(body)}</div></div>'
+                for head, body in steps
+            ) + "</div>",
+            unsafe_allow_html=True,
+        )
+        st.caption("Everything is computed live from 113,233 real UKRI awards and a calibrated local model. No paid AI service sees your text, and abstracts are not stored.")
+        if st.button("Got it, hide the guide", key="guide_hide"):
+            st.session_state["guide_hidden"] = True
+            st.rerun()
+
+
+def mission_brief() -> None:
+    title, abstract = _idea()
+    if not (title.strip() or abstract.strip()) or not st.session_state.get("_scored"):
+        return
+    result = _live(10)
+    st.markdown('<p class="fm-kicker"><span class="sp-dot"></span>Mission brief · live result for the idea above</p>', unsafe_allow_html=True)
+    if not result.ok:
+        for error in result.errors:
+            st.error(error)
+        return
+    rel = insights.reliability(ENGINE, result)
+    top = result.councils[0]
+    gauge, tiles = st.columns([0.9, 2.1])
+    with gauge:
+        fig = go.Figure(go.Indicator(
+            mode="gauge+number", value=round(top.probability * 100, 1), number={"suffix": "%", "font": {"size": 40, "color": "#f8fafc"}},
+            title={"text": f"{top.council} · calibrated probability", "font": {"size": 13, "color": "#a3b3c6"}},
+            gauge={
+                "axis": {"range": [0, 100], "tickvals": [0, 25, 50, 75, 100], "tickcolor": "#64748b", "tickfont": {"color": "#a3b3c6", "size": 10}},
+                "bar": {"color": "#5eead4", "thickness": 0.28},
+                "bgcolor": "rgba(15,23,42,0.6)", "borderwidth": 0,
+                "steps": [
+                    {"range": [0, 60], "color": "rgba(244,63,94,0.16)"},
+                    {"range": [60, 75], "color": "rgba(245,158,11,0.16)"},
+                    {"range": [75, 100], "color": "rgba(16,185,129,0.16)"},
+                ],
+            },
+        ))
+        _style(fig, 240).update_layout(margin=dict(l=40, r=40, t=50, b=8))
+        st.plotly_chart(fig, width="stretch", config={"displayModeBar": False}, key="brief_gauge")
+    with tiles:
+        accuracy = rel.get("bin_test_accuracy")
+        band = result.award
+        median = _money_short(band.median) if band and band.median is not None else "—"
+        st.markdown(
+            '<div class="sp-grid">'
+            + _tile("Most likely council", top.council, COUNCIL_INFO[top.council])
+            + _tile("Test accuracy at this confidence", f"{accuracy:.1%}" if accuracy is not None else "—",
+                    f"Test predictions in the {rel.get('bin')} band", "sp-violet", accuracy)
+            + _tile("Lead over runner-up", f"{rel['margin'] * 100:+.0f} pts", f"vs {rel['runner_up']} · {rel['margin_note']}")
+            + _tile("90% shortlist", ", ".join(result.conformal_set_90), f"95%: {', '.join(result.conformal_set_95)}", "sp-violet")
+            + _tile("Novelty", (result.novelty or {}).get("band", "—"), "Distance to the closest funded abstracts")
+            + _tile("Typical nearby award", median, f"Median of {band.n_positive} priced neighbours · not a quote" if band else "")
+            + "</div>",
+            unsafe_allow_html=True,
+        )
+    links = st.columns(min(3, len(result.conformal_set_95)) + 1)
+    for column, council in zip(links, result.conformal_set_95[:3]):
+        column.link_button(f"Open {council} calls ↗", funding_finder_url(council), width="stretch")
+    links[-1].link_button("Innovation Funding Service ↗", IFS, width="stretch")
+    st.markdown(
+        '<p class="sp-caveat">Probabilities say which council has funded similar text before. They are not a chance of being funded. '
+        f'{html.escape(rel.get("note", ""))}</p>',
+        unsafe_allow_html=True,
+    )
+
+
+def _studio_explain(title: str, abstract: str, result) -> None:
+    st.markdown("### Why the model chose this council")
+    council = st.selectbox("Explain council", [row.council for row in result.councils], key="studio_council")
+    drivers = insights.decision_drivers(ENGINE, title, abstract, council, k=10)
+    rows = pd.DataFrame(drivers["rows"])
+    if rows.empty:
+        st.info("No recognised words to explain.")
+    else:
+        rows["colour"] = rows["direction"].map({"toward": "#5eead4", "away": "#fb7185"})
+        rows = rows.sort_values("points")
+        fig = go.Figure(go.Bar(
+            x=rows["points"], y=rows["term"], orientation="h", marker_color=rows["colour"],
+            hovertemplate="%{y}: %{x:+.3f} logit points<extra></extra>",
+        ))
+        _style(fig, 60 + 24 * len(rows)).update_layout(xaxis_title=f"Push toward (+) or away from (−) {council}", yaxis_title="")
+        st.plotly_chart(fig, width="stretch", key="drivers_chart")
+    st.markdown(f'<p class="sp-caveat">{html.escape(drivers.get("note", ""))} The model reads words, not meaning: '
+                'a phrase like “not a compiler” still counts the word “compiler”.</p>', unsafe_allow_html=True)
+    rel = insights.reliability(ENGINE, result)
+    bins = ENGINE.model_info.get("accuracy_by_confidence", {})
+    if bins:
+        st.markdown("### How reliable is that number?")
+        frame = pd.DataFrame([{"band": label, "accuracy": acc} for label, acc in bins.items()])
+        frame["you"] = frame["band"].map(lambda b: "your idea" if b == rel.get("bin") else "other bands")
+        fig = px.bar(frame, x="band", y="accuracy", color="you", text_auto=".1%",
+                     color_discrete_map={"your idea": "#a78bfa", "other bands": "rgba(148,163,184,0.45)"},
+                     labels={"band": "Top-council probability band", "accuracy": "Held-out accuracy"})
+        fig.update_traces(textposition="outside", textfont_color="#f8fafc", cliponaxis=False)
+        _style(fig, 300).update_layout(yaxis_tickformat=".0%", yaxis_range=[0, 1.08])
+        st.plotly_chart(fig, width="stretch", key="reliability_chart")
+        st.caption(f"From the held-out test split (model_info.json). Top-3 accuracy was {rel['test_top3']:.2%}, which is why low-confidence ideas get a three-council shortlist.")
+
+
+def _studio_checklist(title: str, abstract: str) -> None:
+    check = insights.abstract_checklist(ENGINE, title, abstract)
+    st.markdown(f"### Draft checklist · {check['met']} of {check['total']} met" + (f", {check['partial']} partly" if check["partial"] else ""))
+    icon = {"met": "✓", "partial": "~", "missing": "✗"}
+    st.markdown(
+        '<div class="sp-grid">' + "".join(
+            f'<div class="sp-tile"><div class="sp-check"><span class="sp-icon sp-{item["status"]}" aria-label="{item["status"]}">{icon[item["status"]]}</span>'
+            f'<div><strong>{html.escape(item["label"])}</strong><div class="sp-sub">{html.escape(item["evidence"])}</div>'
+            f'<div class="sp-sub" style="color:#a3b3c6;margin-top:4px">{html.escape(item["why"])}</div></div></div></div>'
+            for item in check["items"]
+        ) + "</div>",
+        unsafe_allow_html=True,
+    )
+    st.markdown(f'<p class="sp-caveat">{html.escape(check["note"])}</p>', unsafe_allow_html=True)
+
+
+def _studio_vocabulary(title: str, abstract: str, result) -> None:
+    council = result.top_council
+    radar = insights.keyword_radar(ENGINE, title, abstract, council)
+    st.markdown(f"### Vocabulary radar · {radar['neighbours']} nearest funded titles")
+    left, right = st.columns(2)
+    with left:
+        st.markdown("**Used by nearby funded projects, not in your draft**")
+        chips = "".join(f'<span class="sp-chip">{html.escape(r["term"])}<b>{r["titles"]}/{r["of"]}</b></span>' for r in radar["suggest"])
+        st.markdown(chips or "Nothing common is missing.", unsafe_allow_html=True)
+    with right:
+        st.markdown("**Already in your draft**")
+        chips = "".join(f'<span class="sp-chip sp-have">{html.escape(r["term"])}<b>{r["titles"]}/{r["of"]}</b></span>' for r in radar["already"])
+        st.markdown(chips or "None of the common neighbour terms yet.", unsafe_allow_html=True)
+    st.markdown(f'<p class="sp-caveat">{html.escape(radar["note"])}</p>', unsafe_allow_html=True)
+    options = [r["term"] for r in radar["suggest"]]
+    if options:
+        picked = st.multiselect("Test terms that are genuinely true of your work", options, key="radar_pick")
+        if picked and st.button("Simulate with these terms", key="radar_go"):
+            st.session_state["radar_sim"] = (tuple(picked), ENGINE.simulate_what_if(title, abstract, add_terms=", ".join(picked), target_council=council))
+        sim = st.session_state.get("radar_sim")
+        if sim and sim[1].get("target"):
+            target = sim[1]["target"]
+            a, b, c = st.columns(3)
+            a.metric(f"{council} before", f"{target['before']:.1%}")
+            b.metric(f"{council} after", f"{target['after']:.1%}", f"{target['delta'] * 100:+.1f} pts")
+            c.metric("Terms tested", str(len(sim[0])))
+            st.caption("A simulation on the deployed model. A higher probability is not a reason to claim work you are not doing.")
+
+
+def _studio_explorer(result_wide) -> None:
+    st.markdown("### Precedent explorer · 50 nearest funded projects")
+    rows = [p.model_dump() for p in result_wide.similar]
+    if not rows:
+        st.info("No neighbours to explore.")
+        return
+    years = [r["start_year"] for r in rows if r["start_year"]]
+    amounts = [r["award_gbp"] for r in rows if r["award_gbp"] > 0]
+    c1, c2 = st.columns(2)
+    councils = c1.multiselect("Councils", sorted({r["lead_funder"] for r in rows}), key="ex_councils")
+    priced = c2.toggle("Only priced awards", key="ex_priced")
+    year_range = None
+    if years and min(years) < max(years):
+        year_range = st.slider("Start year", int(min(years)), int(max(years)), (int(min(years)), int(max(years))), key="ex_years")
+    award_range = None
+    if len(amounts) > 1:
+        top_k = int(max(amounts) / 1000) + 1
+        lo_hi = st.slider("Award (£ thousands, nominal)", 0, top_k, (0, top_k), key="ex_award")
+        award_range = (lo_hi[0] * 1000.0, lo_hi[1] * 1000.0)
+    shown = insights.filter_precedents(rows, councils or None, year_range, award_range, priced)
+    st.caption(f"{len(shown)} of {len(rows)} projects match. £0 awards (mostly studentships) are kept unless you tick “Only priced awards”.")
+    if not shown:
+        return
+    frame = pd.DataFrame(shown)
+    plot = frame[frame["award_gbp"] > 0]
+    if len(plot):
+        fig = px.scatter(plot, x="start_year", y="award_gbp", color="lead_funder", size="similarity", size_max=22,
+                         hover_name="title", hover_data={"lead_org_name": True, "similarity": ":.3f", "start_year": True, "award_gbp": ":,.0f"},
+                         color_discrete_map=COUNCIL_COLOURS, log_y=True,
+                         labels={"start_year": "Start year", "award_gbp": "Award (£, log scale)", "lead_funder": "Council"})
+        st.plotly_chart(_style(fig, 380), width="stretch", key="explorer_chart")
+    table = pd.DataFrame({
+        "similarity": frame["similarity"], "title": frame["title"], "council": frame["lead_funder"],
+        "year": frame["start_year"], "award (£)": frame["award_gbp"].map(lambda v: f"£{v:,.0f}" if v > 0 else "£0 · not priced"),
+        "organisation": frame["lead_org_name"], "GtR": frame["gtr_url"],
+    })
+    st.dataframe(table, hide_index=True, width="stretch", column_config={"GtR": st.column_config.LinkColumn("GtR", display_text="open")})
+    st.download_button("Download these precedents (CSV)", table.to_csv(index=False).encode(), "scholarpulse-precedents.csv", "text/csv", key="ex_csv")
+
+
+def _studio_compare(title: str, abstract: str) -> None:
+    st.markdown("### Idea vs idea")
+    st.caption("Idea A is the text at the top of the page. Write idea B below, or load a demo into it.")
+    if "vs_title" not in st.session_state:
+        starter = next((d for d in DEMOS if d["id"] == "borderline"), DEMOS[1])
+        st.session_state["vs_title"], st.session_state["vs_abstract"] = starter["title"], starter["abstract"]
+    demo_labels = ["(keep my text)"] + [d["label"] for d in DEMOS]
+    pick = st.selectbox("Load a demo into idea B", demo_labels, key="vs_demo")
+    if pick != "(keep my text)" and st.session_state.get("_vs_loaded") != pick:
+        demo = next(d for d in DEMOS if d["label"] == pick)
+        st.session_state["vs_title"], st.session_state["vs_abstract"] = demo["title"], demo["abstract"]
+        st.session_state["_vs_loaded"] = pick
+    st.text_input("Idea B title", key="vs_title")
+    st.text_area("Idea B abstract", key="vs_abstract", height=110)
+    if st.button("Compare A and B", type="primary", key="vs_go"):
+        st.session_state["vs_result"] = insights.compare_two(
+            ENGINE, {"title": title, "abstract": abstract},
+            {"title": st.session_state.get("vs_title", ""), "abstract": st.session_state.get("vs_abstract", "")},
+        )
+    out = st.session_state.get("vs_result")
+    if not out:
+        return
+    if not out["ok"]:
+        for error in out.get("errors", []):
+            st.error(error)
+        return
+    a, b = out["a"], out["b"]
+    st.markdown(
+        '<div class="sp-grid">'
+        + _tile("Idea A", f"{a['top_council']} {a['probability']:.0%}", f"90% set {', '.join(a['set90'])} · {a['novelty']}")
+        + _tile("Idea B", f"{b['top_council']} {b['probability']:.0%}", f"90% set {', '.join(b['set90'])} · {b['novelty']}", "sp-violet")
+        + _tile("Semantic closeness", f"{out['semantic_cosine']:.2f}", "Cosine in the abstract map (1 = same direction)", "sp-neon", max(0.0, out["semantic_cosine"]))
+        + _tile("Shared precedents", f"{out['shared_precedents']} / {out['neighbours']}", f"Overlap (Jaccard) {out['neighbour_jaccard']:.2f}", "sp-violet")
+        + "</div>",
+        unsafe_allow_html=True,
+    )
+    frame = pd.DataFrame(out["councils"])
+    fig = go.Figure()
+    fig.add_bar(name="Idea A", x=frame["council"], y=frame["idea_a"], marker_color="#5eead4")
+    fig.add_bar(name="Idea B", x=frame["council"], y=frame["idea_b"], marker_color="#a78bfa")
+    _style(fig, 320).update_layout(barmode="group", yaxis_tickformat=".0%", yaxis_title="Calibrated probability")
+    st.plotly_chart(fig, width="stretch", key="vs_chart")
+    medians = f"Typical nearby award (CPIH 2026): A {_money(a['median_gbp_2026'])} from {a['priced_neighbours']} priced, B {_money(b['median_gbp_2026'])} from {b['priced_neighbours']} priced."
+    st.caption(f"{out['note']} {medians}")
+
+
+def _studio_export(title: str, abstract: str, result) -> None:
+    st.markdown("### Export the brief")
+    st.caption("A PDF with the council probabilities, shortlist, award band, word drivers, draft checklist, vocabulary radar, nearest projects and live-call links, plus the caveats.")
+    if st.button("Build PDF brief", type="primary", key="pdf_go"):
+        with st.spinner("Building the PDF"):
+            st.session_state["pdf_bytes"] = insights.pdf_brief(
+                title, abstract, result,
+                insights.abstract_checklist(ENGINE, title, abstract),
+                insights.decision_drivers(ENGINE, title, abstract, result.top_council),
+                insights.keyword_radar(ENGINE, title, abstract, result.top_council),
+                APP_DISPLAY_NAME, f"v{APP_VERSION}",
+            )
+            st.session_state["pdf_key"] = (title, abstract)
+    if st.session_state.get("pdf_bytes") and st.session_state.get("pdf_key") == (title, abstract):
+        st.download_button("Download PDF brief", st.session_state["pdf_bytes"], "scholarpulse-brief.pdf", "application/pdf", key="pdf_dl")
+    c1, c2, c3 = st.columns(3)
+    c1.download_button("Markdown brief", ENGINE.to_markdown(title, result), "scholarpulse-brief.md", "text/markdown", key="studio_md")
+    c2.download_button("Similar projects CSV", ENGINE.to_csv(result.similar), "scholarpulse-similar.csv", "text/csv", key="studio_csv")
+    c3.download_button("Full result JSON", ENGINE.to_json(result), "scholarpulse-result.json", "application/json", key="studio_json")
+
+
+STUDIO_TOOLS = ["Explain", "Draft checklist", "Vocabulary", "Precedents", "Idea vs idea", "Export"]
+
+
+def tab_studio() -> None:
+    st.markdown('<p class="fm-kicker">V5 · Proposal Studio</p>', unsafe_allow_html=True)
+    st.markdown("## Proposal Studio")
+    title, abstract = _idea()
+    if not (title.strip() or abstract.strip()):
+        st.info("Type an idea at the top of the page or tap a demo chip. The studio works on that text.")
+        return
+    result = _live(10)
+    if not result.ok:
+        for error in result.errors:
+            st.error(error)
+        return
+    tool = st.segmented_control("Studio tool", STUDIO_TOOLS, default="Explain", key="studio_tool") or "Explain"
+    if tool == "Explain":
+        _studio_explain(title, abstract, result)
+    elif tool == "Draft checklist":
+        _studio_checklist(title, abstract)
+    elif tool == "Vocabulary":
+        _studio_vocabulary(title, abstract, result)
+    elif tool == "Precedents":
+        _studio_explorer(_live(50))
+    elif tool == "Idea vs idea":
+        _studio_compare(title, abstract)
+    else:
+        _studio_export(title, abstract, result)
+
+
 def main() -> None:
     if "bootstrapped" not in st.session_state:
         opening = DEMOS[0]
@@ -677,16 +930,18 @@ def main() -> None:
         st.session_state["bootstrapped"] = True
     projects = f"{len(ENGINE.frame):,}"
     st.markdown(
-        f'<div class="fm-hero"><p class="fm-kicker">{APP_EDITION}</p>'
-        f'<h1 style="margin:0.2rem 0">{APP_DISPLAY_NAME}</h1><p>{APP_TAGLINE}</p>'
+        f'<div class="fm-hero"><p class="fm-kicker"><span class="sp-dot"></span>{APP_EDITION}</p>'
+        f'<h1 class="sp-title">{APP_DISPLAY_NAME}</h1><p class="sp-tagline">{APP_TAGLINE}</p>'
         f'<div class="fm-kpis">'
         f'<span class="fm-kpi">{projects} real UKRI grants</span>'
         f'<span class="fm-kpi">{len(COUNCIL_INFO)} scored councils</span>'
         f'<span class="fm-kpi">{len(PERSONAS)} student stages</span>'
-        f'<span class="fm-kpi">Local calibrated AI</span>'
+        f'<span class="fm-kpi">Calibrated local AI · no paid API</span>'
+        f'<span class="fm-kpi">Explainable · exportable</span>'
         f'</div></div>',
         unsafe_allow_html=True,
     )
+    onboarding()
     labels = {key: value["label"] for key, value in PERSONAS.items()}
     choice = st.selectbox("Tailor to your journey", list(labels), format_func=lambda key: labels[key], key="persona")
     st.markdown(f'<span class="fm-stage">{html.escape(labels[choice])}</span>', unsafe_allow_html=True)
@@ -704,10 +959,13 @@ def main() -> None:
     st.caption(f"{words} words in the idea" + (" · ready to score" if words >= 30 else " · add words until you pass 30"))
     if st.button("Analyze Idea", type="primary", key="analyze_idea"):
         st.session_state["_scored"] = True
-    journey, coach_tab, hub_tab, waves, matcher, sky, arena, lab = st.tabs([
-        "Your journey", "AI Coach & Red-Team", "UK Research Hubs", "Waves & fusion",
+    mission_brief()
+    studio_tab, journey, coach_tab, hub_tab, waves, matcher, sky, arena, lab = st.tabs([
+        "✦ Proposal Studio", "Your journey", "AI Coach & Red-Team", "UK Research Hubs", "Waves & fusion",
         "AI Matcher", "Constellation & What-if", "Compare & Batch", "Model Lab & Ethics",
     ])
+    with studio_tab:
+        tab_studio()
     with journey:
         tab_journey(choice)
     with coach_tab:

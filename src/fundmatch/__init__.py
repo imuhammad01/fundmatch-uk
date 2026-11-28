@@ -6,4 +6,4 @@ The import package remains ``fundmatch``.
 from fundmatch.engine import FundMatchEngine, get_engine
 
 __all__ = ["FundMatchEngine", "get_engine"]
-__version__ = "4.0.0"
+__version__ = "5.0.0"

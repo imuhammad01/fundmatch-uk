@@ -434,8 +434,8 @@ def test_topics_endpoint_is_fast_and_openapi_is_v3():
     assert len(rows) == 5
     assert len({row["working_title"].lower() for row in rows}) == 5
     assert all(row["predicted_council"] and row["calibrated_probability"] is not None and row["novelty_band"] for row in rows)
-    assert api.version == "4.0.0"
-    assert api.openapi()["info"]["version"] == "4.0.0"
+    assert api.version == "5.0.0"
+    assert api.openapi()["info"]["version"] == "5.0.0"
     assert api.title == "ScholarPulse UK API"
 
 
@@ -445,7 +445,7 @@ def test_scholarpulse_brand_coach_redteam_hubs_and_dossier(engine):
     from fundmatch.futuristic import coach, hubs, redteam, research_dossier
 
     assert APP_DISPLAY_NAME == "ScholarPulse UK"
-    assert APP_VERSION == "4.0.0"
+    assert APP_VERSION == "5.0.0"
     title, abstract = DEMOS[0]["title"], DEMOS[0]["abstract"]
     guided = coach(engine, title, abstract, "masters")
     assert 6 <= len(guided["missing_signals"]) <= 8
