@@ -186,6 +186,8 @@ These were not edited (`submission_final/` and `task2_shamim/` are untouched).
 5. Nothing in the report or the PRD contradicts the Won't-have list; the report does not describe the new Idea Studio.
 
 
+**Live check (28 Nov 2026, after the push).** The deployed app was reloaded in a headless browser after the v5.1 push: the header shows "V5 · NEON EDITION · IDEA STUDIO", the Idea Studio tab is present, and the example idea scores EPSRC 87.9% (about 88%) with a 94.3% test accuracy at that confidence band. The footer was checked by the AppTest suite (tests/test_v5_audit.py), not by a live screenshot.
+
 ## Round 2: red-team pass (25 Nov 2026)
 
 The full findings are in [`RED_TEAM_AUTOPSY.md`](RED_TEAM_AUTOPSY.md): 21 findings, of which 1 is Critical, 3 High, 9 Medium, 5 Low and 3 Info.
