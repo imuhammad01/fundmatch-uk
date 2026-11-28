@@ -53,6 +53,10 @@ The 2D constellation is PCA on a stratified sample of the 64-d rows. A query and
 
 `src/fundmatch/insights.py` reuses the loaded engine; it adds no model and no index. `reliability` reads `accuracy_by_confidence` from `model_info.json`; `decision_drivers` divides `explain_council` contributions by the temperature; `abstract_checklist` is rule-based and shows its evidence; `keyword_radar` counts terms in the 50 nearest funded titles and reads the council coefficient; `compare_two` runs two analyses and compares their unit vectors in the 64-d SVD map; `filter_precedents` is a pure filter; `pdf_brief` imports fpdf2 lazily. The styling is one CSS file, `src/fundmatch/assets/neon.css`, with no JavaScript.
 
+## Gap finder and 3D idea map (v5.2)
+
+`src/fundmatch/gaps.py` reuses the engine's hybrid search to fetch the 400 nearest projects, drops those far from the idea, and groups the rest with a NumPy k-means (no `sklearn.cluster`, which would add about 11 MB to the server). Key terms come from a TF-IDF fitted on the neighbourhood's titles only. `classify` is a pure function that applies the published rules (under-explored: at least 15% below the average sub-topic on count and total award, and among the thinnest; crowded: at least 20% more projects than average); `trend_label` compares a sub-topic's recent share with the neighbourhood's. `idea_map_3d` runs an SVD-based PCA on the 300 nearest vectors and projects the idea onto it. Nothing is stored; the results live in the Streamlit session only.
+
 ## What is not in the request path
 
 Retraining, calling the GtR API, and storing user text. `src/fundmatch/pipeline/` documents how the collection and the training were done. The running service loads the export.

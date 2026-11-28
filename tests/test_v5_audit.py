@@ -94,7 +94,7 @@ def test_every_chart_has_labelled_axes_nfr8(monkeypatch):
     monkeypatch.setattr(st, "plotly_chart", spy)
     at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=180)
     at.run()
-    for tool in ("Draft checklist", "Vocabulary", "Precedents", "Idea vs idea", "Explain"):
+    for tool in ("Draft checklist", "Vocabulary", "Precedents", "Gap finder", "3D idea map", "Idea vs idea", "Explain"):
         at.session_state["studio_tool"] = tool
         at.run()
     at.button(key="what_go").click().run()
@@ -105,6 +105,10 @@ def test_every_chart_has_labelled_axes_nfr8(monkeypatch):
         if kinds & {"indicator", "scatterpolar"}:
             continue
         layout = data["layout"]
+        if "scatter3d" in kinds:  # V5.2 3D map: the axes live in ``scene``
+            for axis in ("xaxis", "yaxis", "zaxis"):
+                assert (layout["scene"][axis].get("title") or {}).get("text"), axis
+            continue
         assert (layout.get("xaxis", {}).get("title") or {}).get("text"), kinds
         assert (layout.get("yaxis", {}).get("title") or {}).get("text"), kinds
 

@@ -9,12 +9,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "src"))
 
+import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-from fundmatch import insights
+from fundmatch import gaps, insights
 from fundmatch.brand import APP_DISPLAY_NAME, APP_EDITION, APP_TAGLINE, APP_VERSION
 from fundmatch.futuristic import research_dossier
 from fundmatch.cpih import CAVEAT, SOURCE_URL, TARGET_LABEL
@@ -631,7 +632,7 @@ def onboarding() -> None:
         steps = [
             ("Describe the idea", "Pick your stage, then type a title and a short abstract, or tap a demo chip. 30 words is the minimum; 100+ is better."),
             ("Read the mission brief", "The panel under the button shows the most likely UKRI council, how reliable that number is, and the honest uncertainty."),
-            ("Open Idea Studio", "See which words drive the prediction, run the draft checklist, find vocabulary used by nearby funded projects, and compare two ideas."),
+            ("Open Idea Studio", "See which words drive the prediction, run the draft checklist, find vocabulary used by nearby funded projects, spot under-explored and crowded directions with the Gap finder, fly through a 3D idea map, and compare two ideas."),
             ("Check precedents and export", "Filter real funded projects by council, year and amount, then download a PDF brief and open the live calls on UKRI Funding Finder."),
         ]
         st.markdown(
@@ -893,11 +894,214 @@ def _studio_export(title: str, abstract: str, result) -> None:
     c3.download_button("Full result JSON", ENGINE.to_json(result), "scholarpulse-result.json", "application/json", key="studio_json")
 
 
-STUDIO_TOOLS = ["Explain", "Draft checklist", "Vocabulary", "Precedents", "Idea vs idea", "Export"]
+def _md(text: str) -> str:
+    """Escape characters that Streamlit markdown would otherwise interpret (links, maths, emphasis)."""
+    out = html.unescape(str(text or ""))
+    for ch in ("\\", "`", "*", "_", "[", "]", "$", "<", ">", "|", "~", "#"):
+        out = out.replace(ch, "\\" + ch)
+    return out
+
+
+def _gap_state(title: str, abstract: str) -> dict:
+    """One cached neighbourhood, gap analysis and 3D map for the current idea."""
+    key = (title, abstract)
+    cache = st.session_state.get("_gap_cache")
+    if not cache or cache["key"] != key:
+        hood = gaps.neighbourhood(ENGINE, title, abstract)
+        analysis = gaps.analyse(ENGINE, title, abstract, hood=hood)
+        topic_of = {}
+        if analysis.get("ok"):
+            for t in analysis["topics"]:
+                for row in t["rows"]:
+                    topic_of[row] = t["id"]
+        cache = {"key": key, "hood": hood, "analysis": analysis, "map": gaps.idea_map_3d(ENGINE, hood, topic_of_row=topic_of)}
+        st.session_state["_gap_cache"] = cache
+    return cache
+
+
+def _trend_text(trend: dict) -> str:
+    if trend["delta_pp"] is None:
+        return "too few dated projects to call a trend"
+    arrow = {"growing": "▲", "shrinking": "▼", "flat": "▬"}[trend["label"]]
+    return f"{arrow} {trend['label']} ({trend['delta_pp']:+.1f} points vs the neighbourhood)"
+
+
+def _topic_name(topic: dict, n: int = 3) -> str:
+    return " · ".join(topic["terms"][:n]) or f"sub-topic {topic['id'] + 1}"
+
+
+def _gap_chart(topics: list[dict]):
+    rows = [t for t in topics if t["trend"]["delta_pp"] is not None]
+    if not rows:
+        return None
+    colours = {"under-explored": "#5ee6d3", "crowded": "#ff7a90", "balanced": "#94a3b8"}
+    fig = go.Figure()
+    for status in ("under-explored", "balanced", "crowded"):
+        part = [t for t in rows if t["status"] == status]
+        if not part:
+            continue
+        fig.add_trace(go.Scatter(
+            x=[t["count_index"] for t in part], y=[t["trend"]["delta_pp"] for t in part], mode="markers+text",
+            name=status, text=[t["terms"][0] if t["terms"] else "" for t in part], textposition="top center",
+            marker=dict(size=[max(12.0, min(48.0, 12 + 36 * (t["total_gbp"] / max(x["total_gbp"] for x in rows)) ** 0.5)) for t in part],
+                        color=colours[status], opacity=0.85, line=dict(width=1, color="#e7eef6")),
+            hovertext=[f"<b>{html.escape(_topic_name(t))}</b><br>{t['projects']} projects · £{t['total_gbp']:,.0f} total<br>{html.escape(_trend_text(t['trend']))}" for t in part],
+            hoverinfo="text",
+        ))
+    fig.add_vline(x=1.0, line_dash="dot", line_color="rgba(148,163,184,0.6)")
+    fig.add_hline(y=0.0, line_dash="dot", line_color="rgba(148,163,184,0.6)")
+    fig.update_xaxes(title_text="Crowdedness: projects vs the average sub-topic (1.0 = average)")
+    fig.update_yaxes(title_text="Growth: change in recent share vs neighbourhood (points)")
+    return fig
+
+
+def _topic_card(topic: dict, rank: int | None, nb: dict) -> None:
+    badge = {"under-explored": "Under-explored", "crowded": "Crowded", "balanced": "Balanced"}[topic["status"]]
+    with st.container(border=True):
+        head = f"**{badge}{f' #{rank}' if rank else ''} · {_md(_topic_name(topic, 4))}**"
+        st.markdown(head)
+        a, b, c, d = st.columns(4)
+        a.metric("Projects", topic["projects"], f"{topic['count_index']:.2f}× the average sub-topic", delta_color="off", delta_arrow="off")
+        if topic["priced_projects"]:
+            b.metric("Total award", _money_short(topic["total_gbp"]), f"{topic['priced_projects']} of {topic['projects']} priced", delta_color="off", delta_arrow="off")
+            c.metric("Median priced award", _money_short(topic["median_gbp"]))
+        else:
+            b.metric("Total award", "£0", f"0 of {topic['projects']} priced (unpriced)", delta_color="off", delta_arrow="off")
+            c.metric("Median priced award", "none priced")
+        d.metric("Likely council", topic["council"], f"{topic['council_share']:.0%} of its projects", delta_color="off", delta_arrow="off")
+        notes = [f"Trend: {_trend_text(topic['trend'])}."]
+        if not topic.get("funding_known", True):
+            notes.append("Fewer than 3 priced projects, so funding is mostly unpriced records (£0), not proof of low funding.")
+        st.caption(" ".join(notes) + f" Key terms: {_md(', '.join(topic['terms']))}.")
+        for ex in topic["examples"]:
+            amount = f"£{ex['award_gbp']:,.0f}" if ex["award_gbp"] > 0 else "£0 · not priced"
+            link = f"[open in GtR]({ex['gtr_url']})" if ex["gtr_url"].startswith("https://gtr.ukri.org/") else ""
+            st.markdown(f"- {_md(ex['title'])} · {ex['council']} · {ex['year'] or 'n/a'} · {amount} · {link}")
+        st.markdown(f"[Open {topic['council']} calls on UKRI Funding Finder ↗]({funding_finder_url(topic['council'])})")
+
+
+def _studio_gaps(title: str, abstract: str) -> None:
+    state = _gap_state(title, abstract)
+    data = state["analysis"]
+    st.markdown("### Gap finder")
+    if not data["ok"]:
+        for error in data["errors"]:
+            st.error(error)
+        return
+    st.markdown(
+        '<p class="sp-caveat"><b>Read this first.</b> “Low funding” is not the same as “opportunity”. A thin area can reflect '
+        "low priority, work filed under other words, or data gaps. GtR shows past awards, not open calls. "
+        "Unpriced studentships appear as £0.</p>", unsafe_allow_html=True,
+    )
+    topics = data["topics"]
+    gap_topics = [t for t in topics if t["status"] == "under-explored"]
+    crowded = [t for t in topics if t["status"] == "crowded"]
+    st.caption(
+        f"{data['neighbours']} funded projects close to your idea ({data['left_out']} of the {data['fetched']} nearest were left out as too far away), "
+        f"grouped into {data['k']} sub-topics. Computed in this session from the existing TF-IDF/SVD vectors; no new model."
+    )
+    if gap_topics:
+        st.markdown(f"#### Under-explored directions near your idea ({len(gap_topics)})")
+        for rank, t in enumerate(gap_topics, 1):
+            _topic_card(t, rank, data["neighbourhood"])
+    else:
+        st.info("No sub-topic near your idea is both clearly smaller and clearly less funded than average, so nothing is flagged as under-explored.")
+    if crowded:
+        st.markdown(f"#### Crowded directions ({len(crowded)})")
+        for t in crowded:
+            _topic_card(t, None, data["neighbourhood"])
+    fig = _gap_chart(topics)
+    if fig is not None:
+        st.markdown("#### Crowdedness against growth")
+        st.plotly_chart(_style(fig, 420), width="stretch", key="gap_chart")
+        st.caption("Each bubble is a sub-topic; bubble area follows its total award. Left of the dotted line is less crowded than average; "
+                   "above the other dotted line it has grown its share of recent projects faster than the neighbourhood.")
+    table = pd.DataFrame([{
+        "status": t["status"], "key terms": ", ".join(t["terms"]), "projects": t["projects"], "priced projects": t["priced_projects"],
+        "total award (£)": round(t["total_gbp"]), "median priced award (£)": None if t["median_gbp"] is None else round(t["median_gbp"]),
+        "trend": _trend_text(t["trend"]), "likely council": t["council"], "closeness to your idea": t["closeness_to_idea"],
+    } for t in topics])
+    with st.expander("All sub-topics"):
+        st.dataframe(table, hide_index=True, width="stretch")
+        st.download_button("Download sub-topic table (CSV)", table.to_csv(index=False).encode(), "scholarpulse-gaps.csv", "text/csv", key="gap_csv")
+    with st.expander("How this is measured"):
+        st.markdown(data["method"])
+        st.markdown(
+            f"Under-explored means at least 15% below the average sub-topic on both project count and total award, and among the thinnest on count, total and median award. "
+            f"Crowded means at least 20% more projects than the average sub-topic. Projects whose closeness to your idea is "
+            f"below {data['relatedness_cutoff']:.2f} are left out first. Amounts are nominal pounds."
+        )
+        for caveat in data["caveats"]:
+            st.markdown(f"- {caveat}")
+
+
+def _dot(award: float, biggest: float) -> float:
+    """Marker size on a log scale from £1k to the largest award, so one huge grant does not shrink the rest. £0 gets the minimum."""
+    if award <= 0 or biggest <= 1000:
+        return 4.0
+    return 4.0 + 12.0 * min(1.0, max(0.0, (np.log10(max(award, 1000.0)) - 3.0) / (np.log10(biggest) - 3.0)))
+
+
+def _studio_map3d(title: str, abstract: str) -> None:
+    state = _gap_state(title, abstract)
+    m = state["map"]
+    st.markdown("### 3D idea map")
+    if not m.get("ok"):
+        st.info("The map needs a valid idea.")
+        return
+    topics = state["analysis"].get("topics", [])
+    names = {t["id"]: f"{_topic_name(t, 2)}" for t in topics}
+    mode = st.radio("Colour points by", ["Council", "Gap-finder sub-topic"], horizontal=True, key="map3d_colour")
+    pts = m["points"]
+    biggest = max([p["award_gbp"] for p in pts] + [1.0])
+    fig = go.Figure()
+    groups: dict[str, list[dict]] = {}
+    for p in pts:
+        label = p["council"] if mode == "Council" else names.get(p["topic"], "other")
+        groups.setdefault(label, []).append(p)
+    palette = ["#5ee6d3", "#a78bfa", "#38bdf8", "#f9a8d4", "#fbbf24", "#86efac", "#fb923c", "#94a3b8", "#e879f9", "#67e8f9", "#fde047"]
+    for i, (label, part) in enumerate(sorted(groups.items())):
+        colour = COUNCIL_COLOURS.get(label, palette[i % len(palette)]) if mode == "Council" else palette[i % len(palette)]
+        wrapped = [html.escape(p["title"][:90] + ("…" if len(p["title"]) > 90 else "")) for p in part]
+        fig.add_trace(go.Scatter3d(
+            x=[p["x"] for p in part], y=[p["y"] for p in part], z=[p["z"] for p in part], mode="markers", name=label,
+            marker=dict(size=[_dot(p["award_gbp"], biggest) for p in part], color=colour, opacity=0.85, line=dict(width=0)),
+            hovertext=[
+                f"<b>{w}</b><br>{html.escape(p['council'])} · {p['year'] or 'year n/a'}<br>"
+                f"{'£{:,.0f}'.format(p['award_gbp']) if p['award_gbp'] > 0 else '£0 · not priced'}<br>GtR: {html.escape(p['gtr_url'])}"
+                for w, p in zip(wrapped, part)
+            ],
+            hoverinfo="text",
+        ))
+    ix, iy, iz = m["idea"]
+    fig.add_trace(go.Scatter3d(x=[ix], y=[iy], z=[iz], mode="markers", name="your idea (glow)", hoverinfo="skip", showlegend=False,
+                               marker=dict(size=26, color="rgba(94,230,211,0.25)", line=dict(width=0))))
+    fig.add_trace(go.Scatter3d(x=[ix], y=[iy], z=[iz], mode="markers+text", name="Your idea", text=["YOUR IDEA"], textposition="top center",
+                               textfont=dict(color="#ffffff", size=13),
+                               marker=dict(size=10, color="#ffffff", symbol="diamond", line=dict(width=3, color="#5ee6d3")),
+                               hovertext=["<b>Your idea</b><br>projected onto the same three axes"], hoverinfo="text"))
+    ev = m["explained"]
+    axis = dict(backgroundcolor="rgba(7,9,15,0.0)", gridcolor="rgba(148,163,184,0.2)", zerolinecolor="rgba(148,163,184,0.35)", color="#cbd5e1")
+    fig.update_layout(
+        height=620, paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#e7eef6", size=12), margin=dict(l=0, r=0, t=10, b=0),
+        legend=dict(title_text="", bgcolor="rgba(7,9,15,0.4)"),
+        scene=dict(
+            xaxis=dict(title_text=f"Semantic axis 1 ({ev[0]:.0%} of spread)", **axis),
+            yaxis=dict(title_text=f"Semantic axis 2 ({ev[1]:.0%} of spread)", **axis),
+            zaxis=dict(title_text=f"Semantic axis 3 ({ev[2]:.0%} of spread)", **axis),
+            camera=dict(eye=dict(x=1.6, y=1.4, z=0.9)), bgcolor="rgba(7,9,15,0.25)",
+        ),
+    )
+    st.caption(f"{m['n']} nearest funded projects. Drag to rotate, scroll to zoom, hover for the title, year and GtR link. Dot size follows the award on a log scale; £0 (unpriced) projects get the smallest dot.")
+    st.plotly_chart(fig, width="stretch", key="map3d_chart")
+    st.markdown(f'<p class="sp-caveat">{html.escape(m["note"])}</p>', unsafe_allow_html=True)
+
+
+STUDIO_TOOLS = ["Explain", "Draft checklist", "Vocabulary", "Precedents", "Gap finder", "3D idea map", "Idea vs idea", "Export"]
 
 
 def tab_studio() -> None:
-    st.markdown('<p class="fm-kicker">V5 · Idea Studio</p>', unsafe_allow_html=True)
+    st.markdown('<p class="fm-kicker">V5.2 · Idea Studio</p>', unsafe_allow_html=True)
     st.markdown("## Idea Studio")
     title, abstract = _idea()
     if not (title.strip() or abstract.strip()):
@@ -917,6 +1121,10 @@ def tab_studio() -> None:
         _studio_vocabulary(title, abstract, result)
     elif tool == "Precedents":
         _studio_explorer(_live(50))
+    elif tool == "Gap finder":
+        _studio_gaps(title, abstract)
+    elif tool == "3D idea map":
+        _studio_map3d(title, abstract)
     elif tool == "Idea vs idea":
         _studio_compare(title, abstract)
     else:

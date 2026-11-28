@@ -23,7 +23,7 @@ FundMatchEngine  ── artifacts/tfidf_lr_weights.npz
       │            ── data/projects_meta.parquet
       ├── fundmatch              Rich CLI
       ├── streamlit run app.py   ScholarPulse UK
-      ├── fundmatch serve        FastAPI, version 5.0.0
+      ├── fundmatch serve        FastAPI, version 5.2.0
       └── notebooks/01_fundmatch_pipeline_and_evaluation.ipynb
 ```
 
@@ -67,6 +67,19 @@ V5 restyles the app as a dark, glassy "command deck" (CSS only, in `src/fundmatc
 
 Memory and speed, measured on a Linux test machine (Python 3.13) on 28 November 2026: Streamlit server peak 712 MB for V4 and 707–715 MB for V5.0. The V5.1 audit fix (the query projection no longer copies a 100 MB matrix on the first search; results are bit-identical) lowers it to 613–616 MB after opening every studio tool and building a PDF; a warm rerun takes 0.57–0.61 s.
 
+## V5.2: Gap finder and 3D idea map (28 November 2026)
+
+Two more tools in the Idea Studio, both in `src/fundmatch/gaps.py` and tested in `tests/test_v52_gaps.py`. They use only the real GtR rows and the SVD vectors the app already loads. There is no new model and no new data.
+
+- **Gap finder.** The 400 funded projects nearest your idea are fetched. Those that sit far from it in the SVD map (closeness below 0.75 of the neighbourhood median) are dropped, and the rest are grouped into 3 to 10 sub-topics with a small deterministic k-means written in NumPy. Each sub-topic shows its key title words, project count, total and median priced award, how many projects are priced, its trend (the share of its projects that started in 2022–2025 against 2018–2021, compared with the same share for the whole neighbourhood: growing, flat or shrinking by at least 8 points), the most common council among its projects, and three example projects with GtR links. A sub-topic is **under-explored** when it is at least 15% below the average sub-topic on both project count and total award and is among the thinnest on count, total and median award (at most three are flagged). It is **crowded** when it has at least 20% more projects than average (at most two are flagged). A bubble chart plots crowdedness against growth. Sub-topics with fewer than three priced projects are marked, because their £0 is unpriced records, not proof of low funding.
+- **3D idea map.** The 300 nearest funded projects are placed in 3D by PCA fitted on those neighbours only, with your idea projected onto the same axes as a glowing marker. Points are coloured by council (or by gap sub-topic), sized by award on a log scale, and show the title, year, award and GtR link on hover. The axes are labelled "Semantic axis 1/2/3" with the share of the neighbours' spread each explains, and the page says that a 3D projection distorts distances.
+
+For the example idea ("Learning control for superconducting quantum processors"), 273 of the 400 nearest projects are kept. The Gap finder flags three under-explored sub-topics (qubit tuning and machine learning, with 24 projects that are all unpriced studentships; superconducting amplifiers and sensors, 21 projects, £4.71m, shrinking; optical and spin control dynamics, 28 projects, £6.36m, flat) and two crowded ones (hybrid quantum interfaces and networks, 55 projects, growing; trapped-ion computing, 45 projects, shrinking).
+
+**What it does not mean.** Low funding is not the same as opportunity: a thin area can reflect low priority, work filed under other words, or gaps in the data. GtR shows awards made in the past, not open calls. Unpriced studentships appear as £0, so they add projects but no money. Sub-topics are a rough clustering and amounts are nominal pounds. The page states all of this above the results.
+
+Cost: about 0.08 s per idea on the Linux test machine (median over 20 runs; 0.27 s on the PC), no extra files, and no change to the Streamlit server's memory peak (613–618 MB after opening every studio tool including both new ones and building a PDF; V5.1 was 614–617 MB).
+
 ## What a student can do
 
 - Read eight council probabilities, a 90% and 95% set, and live Funding Finder links. A single council is shown at 90% only when the probability is at least 0.80, because that test bin was 94.3% accurate. Otherwise the set is the top three (test top-3 accuracy 0.9916).
@@ -84,7 +97,7 @@ Measured on 25 November 2026 (Python 3.13, this repository, 30 demo queries):
 - median warm query: 118 ms, p95 161 ms
 - memory: about 600 MB resident after load
 
-The Streamlit Community Cloud limits page gives 690 MB minimum and 2.7 GB maximum memory. `pytest -q` passes 80 tests (28 November 2026, V5.1).
+The Streamlit Community Cloud limits page gives 690 MB minimum and 2.7 GB maximum memory. `pytest -q` passes 103 tests (28 November 2026, V5.2).
 
 ```bash
 pytest -q

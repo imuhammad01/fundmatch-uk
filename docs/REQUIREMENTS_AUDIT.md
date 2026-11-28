@@ -188,6 +188,28 @@ These were not edited (`submission_final/` and `task2_shamim/` are untouched).
 
 **Live check (28 Nov 2026, after the push).** The deployed app was reloaded in a headless browser after the v5.1 push: the header shows "V5 · NEON EDITION · IDEA STUDIO", the Idea Studio tab is present, and the example idea scores EPSRC 87.9% (about 88%) with a 94.3% test accuracy at that confidence band. The footer was checked by the AppTest suite (tests/test_v5_audit.py), not by a live screenshot.
 
+### Extra features after the audit (V5.2: Gap finder and 3D idea map)
+
+These two Idea Studio tools were added on 28 November 2026 after Shamim asked for them. They are **not** in the product requirements, so they change no Met / Partly / Not met count above. They were checked against the same constraints.
+
+| Check | Result | Evidence |
+|---|---|---|
+| Real data only (NFR-9, no fabricated numbers) | Met | `src/fundmatch/gaps.py` reads only `engine.frame` (GtR rows) and the SVD vectors already loaded. `tests/test_v52_gaps.py::test_funding_numbers_match_an_independent_recomputation` recomputes every sub-topic's total, median, priced count, council and recent / earlier counts from the table. |
+| No new model, cheap (NFR-1, NFR-2) | Met | k-means is plain NumPy; key terms are a TF-IDF over about 300 titles. Gap finder plus 3D map: median 81 ms per idea on the Linux test machine (p95 84 ms, max 90 ms, 20 runs over the 10 demos), median 267 ms on the PC (p95 321 ms, max 395 ms). Target: under 3 s. |
+| Memory (NFR-3) | Met | Streamlit server peak 613 to 618 MB (3 runs) after opening every studio tool including both new ones and building a PDF; V5.1 measured 614 to 617 MB in the same session. Importing `sklearn.cluster` would have added about 11 MB, so k-means was written in NumPy. The PC resident set grew by 3 MB. |
+| Labelled axes (NFR-8) | Met | The crowdedness-against-growth chart and the 3D map have axis titles ("Semantic axis 1/2/3 (x% of spread)"); `test_every_chart_has_labelled_axes_nfr8` now opens both tools and checks the 3D `scene` axes. |
+| Honest limits | Met | The caveat (low funding is not opportunity, GtR shows past awards not open calls, unpriced studentships appear as £0) is shown above the results and in "How this is measured"; the 3D page says a 3D projection distorts distances. Both are asserted in the page tests. |
+| Won't-have list | Met | The tools do not predict funding success, do not write proposals and do not name or rank researchers (only projects and councils). `test_wont_have_items_are_not_claimed` scans the new module too. Labels are descriptive ("under-explored", "crowded") and say they are about past awards. |
+| No personal data | Met | Only project, council, year, award, organisation and GtR link are used. `test_no_personal_fields_in_gap_output` scans the output. Nothing is stored. |
+
+**What the Gap finder can and cannot say.** It compares sub-topics with each other inside one neighbourhood, so "under-explored" means "small and thinly funded compared with the other sub-topics near this idea". It cannot say the area is neglected nationally, that a call is open, or that a proposal would be funded. Sub-topics come from a rough clustering and can change on a different idea. Sub-topics with fewer than three priced projects are marked because their £0 is unpriced records.
+
+**For the example idea** (the quantum demo): 273 of the 400 nearest projects are kept. Under-explored: qubit tuning with machine learning (24 projects, all unpriced studentships, so funding is unknown); superconducting amplifiers and sensors (21 projects, £4.71m, shrinking); optical and spin control dynamics (28 projects, £6.36m, flat). Crowded: hybrid quantum interfaces and networks (55 projects, £26.3m, growing); trapped-ion computing (45 projects, £0.98m, shrinking). The EPSRC result for the example is unchanged at 87.9%.
+
+**Tests.** `pytest -q` now passes 103 tests (80 before V5.2): 23 new in `tests/test_v52_gaps.py` plus the extended axis test. Version label bumped to 5.2.0 (`brand.py`, `__init__.py`, `pyproject.toml`, the API version test).
+
+**Does this make the submitted report stale?** It already lists the Idea Studio tools in general terms and does not claim a fixed tool list, so the new tools do not contradict it. The earlier mismatches still stand and are slightly larger: the report says 61 tests (now 103), version 5.0.0 (now 5.2.0) and a 819 MiB peak (now 613 to 618 MB), and Figure 6 and the submitted code zip show the V4 look and code.
+
 ## Round 2: red-team pass (25 Nov 2026)
 
 The full findings are in [`RED_TEAM_AUTOPSY.md`](RED_TEAM_AUTOPSY.md): 21 findings, of which 1 is Critical, 3 High, 9 Medium, 5 Low and 3 Info.

@@ -2,7 +2,7 @@
 
 CS5079 Applied AI. Md Shamim Mia, Student ID 52536283, University of Aberdeen.
 
-The display name is ScholarPulse UK. The Python package and the `fundmatch` command are unchanged. Version 5.0.0 (V5 Neon Edition).
+The display name is ScholarPulse UK. The Python package and the `fundmatch` command are unchanged. Version 5.2.0 (V5.2 Neon Edition).
 
 | Check | Result |
 | --- | --- |
@@ -12,7 +12,7 @@ The display name is ScholarPulse UK. The Python package and the `fundmatch` comm
 | UKRI Open Government Licence v3.0 attribution on the dossier, the about page, and this README | Dossier footer and `README.md` |
 | Honest calibration. Macro-F1 0.8615, accuracy 0.8693, top-3 0.9916, ECE 0.0336 → 0.0180, temperature 1.1314305006097425 | `MODEL_CARD.md` and the model lab |
 | Corpus integrity. 113,233 projects, snapshot 23 November 2026, no personal columns | Engine refuses a table that contains `pi_name`, `researcher`, `orcid`, or `surname` |
-| FastAPI title `ScholarPulse UK API`, version `5.0.0` | OpenAPI test |
+| FastAPI title `ScholarPulse UK API`, version `5.2.0` | OpenAPI test |
 | `POST /api/v1/coach`, `/api/v1/redteam`, `/api/v1/hubs`, `/api/v1/topics` warm under 150 ms | Latency assertions in pytest |
 | Notebook `notebooks/01_fundmatch_pipeline_and_evaluation.ipynb` re-executed with saved outputs and zero errors | Re-run before the final commit |
 | Streamlit hero clears the fixed header at 1440×900 and 1280×800. Demo pills do not ellipsize. Radar and hub labels are not clipped | Screenshots in the run artifacts |

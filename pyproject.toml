@@ -1,6 +1,6 @@
 [project]
 name = "fundmatch"
-version = "5.0.0"
+version = "5.2.0"
 description = "ScholarPulse UK — calibrated UKRI council matching for CS5079 Applied AI. Import package: fundmatch."
 requires-python = ">=3.11"
 dependencies = [
