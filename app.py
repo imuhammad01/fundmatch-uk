@@ -90,7 +90,6 @@ def render_match(result, expert: bool) -> None:
         for error in result.errors:
             st.error(error)
         return
-    st.markdown('<div class="fm-card">', unsafe_allow_html=True)
     st.markdown(f"### {result.top_council}")
     st.caption(f"{COUNCIL_INFO[result.top_council]} · {result.latency_ms:.0f} ms · {result.precision} · entropy {result.entropy:.2f}")
     if result.confidence == "low":
@@ -105,7 +104,6 @@ def render_match(result, expert: bool) -> None:
     st.caption(result.conformal_explanation)
     if result.novelty:
         st.info(f"{result.novelty['band']}. {result.novelty['note']}")
-    st.markdown("</div>", unsafe_allow_html=True)
     if not expert:
         st.markdown(f'<div class="fm-card"><h3>Student coach</h3>{html.escape(result.student_summary)}</div>', unsafe_allow_html=True)
     left, right = st.columns([1.15, 0.85])
