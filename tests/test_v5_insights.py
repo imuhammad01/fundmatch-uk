@@ -1,4 +1,4 @@
-"""V5 Proposal Studio: every number comes from the deployed model, the test profile or GtR rows."""
+"""V5 Idea Studio: every number comes from the deployed model, the test profile or GtR rows."""
 
 from __future__ import annotations
 
@@ -144,7 +144,7 @@ def test_v5_studio_renders_in_streamlit():
     assert not at.exception
     assert len(at.tabs) == 9
     labels = [tab.label for tab in at.tabs]
-    assert labels[0] == "✦ Proposal Studio"
+    assert labels[0] == "✦ Idea Studio"
     for name in ("Your journey", "AI Coach & Red-Team", "UK Research Hubs", "Waves & fusion", "AI Matcher",
                  "Constellation & What-if", "Compare & Batch", "Model Lab & Ethics"):
         assert name in labels

@@ -49,7 +49,7 @@ The 2D constellation is PCA on a stratified sample of the 64-d rows. A query and
 
 `src/fundmatch/student.py` sits on the same engine. Topics, trends, readiness, fusion, and the starter pack do not add a second model and do not call an external API. Persona text changes the coaching and the twelve-week outline. It does not change the classifier.
 
-## Proposal Studio (v5)
+## Idea Studio (v5)
 
 `src/fundmatch/insights.py` reuses the loaded engine; it adds no model and no index. `reliability` reads `accuracy_by_confidence` from `model_info.json`; `decision_drivers` divides `explain_council` contributions by the temperature; `abstract_checklist` is rule-based and shows its evidence; `keyword_radar` counts terms in the 50 nearest funded titles and reads the council coefficient; `compare_two` runs two analyses and compares their unit vectors in the 64-d SVD map; `filter_precedents` is a pure filter; `pdf_brief` imports fpdf2 lazily. The styling is one CSS file, `src/fundmatch/assets/neon.css`, with no JavaScript.
 

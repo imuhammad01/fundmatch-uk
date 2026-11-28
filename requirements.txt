@@ -16,3 +16,4 @@ httpx==0.28.1
 nbconvert==7.16.6
 ipykernel==6.30.1
 # 2026-11-28 v5.0: adds fpdf2 for the PDF brief; this change also restarts Streamlit Cloud
+# 2026-11-28 v5.1: audit fixes; this change restarts Streamlit Cloud

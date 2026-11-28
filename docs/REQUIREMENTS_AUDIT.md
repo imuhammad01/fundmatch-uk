@@ -4,6 +4,8 @@ Audit date: 25 November 2026 (Europe/London, UTC+0). Branch audited: `shamim` of
 
 Requirements source: `docs/specs/00_product_requirements.md` (sections 1 to 5 and the notes).
 
+**Current status is in the section [V5 re-audit (28 November 2026)](#v5-re-audit-28-november-2026-after-the-neon-edition) below.** The earlier tables record rounds 1 and 2.
+
 **How each status was checked.** Every status comes from code that was run or a file that was read during the audit. No number was invented.
 - `pytest -q` passes: 41 tests (21 existing plus 20 new in `tests/test_requirements.py`).
 - Streamlit `AppTest` loads `app.py` with no exceptions and shows 8 tabs.
@@ -38,6 +40,151 @@ So most data and model requirements had numbers in `artifacts/summary.json`, but
 - **FR-12:** a CPU SciBERT pilot was run and measured (macro-F1 0.784, against 0.825 for TF-IDF + LR on the same rows). A full GPU fine-tune was not run.
 - **FR-13:** BM25, SPECTER and FAISS were measured, and the 50 queries have assistant-drafted labels. The human review in `relevant (group)` is still empty.
 - FR-8 is now Met: the recency rule is applied to award bands and its effect is measured.
+
+## V5 re-audit (28 November 2026, after the Neon Edition)
+
+**Scope.** Every FR, NFR and feature ID, the Won't-have items, the section 5 marking map and the Notes of `docs/specs/00_product_requirements.md` were re-checked against the V5 code (branch `shamim`, V5 as first pushed at `48fad7b`, then the V5.1 fixes below). The sections above are the earlier rounds; this section is the current status and wins where they differ.
+
+**How it was checked.** Each row says what was run.
+- `pytest -q`: **80 passed** on the Linux test machine (Python 3.13) and on the user's Windows PC (Python 3.11.16). New tests `tests/test_v5_audit.py` run the real Streamlit page with `AppTest` for FR-19, FR-20, FR-21 to FR-26, NFR-8, NFR-9, NFR-10, the Won't-have items and the NFR-3 fix.
+- The GtR API was called live: it still reports **158,710 projects** (`totalSize`, 7,936 pages of 20).
+- The 10 similar-project links for the quantum example were opened: all 10 grant references return the same title from the API, and a headless Chrome load of `https://gtr.ukri.org/projects?ref=2722031` shows the matching project page. `curl` gets HTTP 202 because the page is drawn by JavaScript.
+- Engine latency over 30 queries (10 demos x 3 runs, CPIH on): Linux test machine median **82 ms**, p95 89 ms, max 99 ms; the user's PC median **147 ms**, p95 159 ms, max 214 ms, cold load 8.5 s. Target: under 3 s.
+- Memory, measured as the Streamlit server's peak after a first page load, every Idea Studio tool, a PDF build and the matcher, hubs and what-if tabs: Linux **613 to 616 MB** (V5.0 as pushed: 707 to 715 MB; V4: 712 MB); PC working-set peak **566 MB** (V5.0: 647 MB).
+- All 17 pinned requirements resolve to ready-made wheels for Python 3.11 on `win_amd64` and `manylinux2014_x86_64` (`pip download --only-binary=:all:`), so the install works on the PC and on Streamlit Cloud.
+- `pyflakes` is clean over `app.py`, `src/` and `tests/`.
+- The live app at https://scholarpulse-uk.streamlit.app/ was re-opened after the push (see the end of this section).
+
+### Fixes made in this audit (V5.1)
+
+| # | Finding | Fix | Evidence |
+|---|---|---|---|
+| 1 | **NFR-3.** The first search copied the whole 64 x 200,000 projection to float64 (`matrix @ c_rec.T`), about 100 MB, and set the server's memory peak above the 690 MB free-tier minimum. | `engine._search` multiplies only the query's non-zero terms by their columns. The query vector is identical (max difference 0 on 300 random titles; `test_search_vector_is_identical_after_the_memory_fix`). | Server peak 707 to 715 MB down to 613 to 616 MB. |
+| 2 | **NFR-8.** Three V4/V5 charts had no axis titles (the hubs bar chart's organisation axis, the what-if chart, the word-driver chart's word axis). | Axis titles added. | `test_every_chart_has_labelled_axes_nfr8` renders the app and fails on any unlabelled Cartesian chart. |
+| 3 | **Won't-have (proposal writing and success prediction).** The V5 tab was called "Proposal Studio" and the coach tab "Upgrade the draft", which suggests the app writes or edits proposals. The About text said only "no proposal writing". The 0 to 100 "Readiness" score had no caveat saying it is not a funding prediction. | Tab renamed **Idea Studio**, coach heading renamed "Test the vocabulary, then hear the hard questions", a caption under Readiness, and the About "Out of scope" paragraph now states exactly what the app does and does not do. | `test_wont_have_items_are_not_claimed`. |
+| 4 | **FR-20.** The low-confidence warning was only inside the AI Matcher tab; the V5 mission brief showed a gauge and nothing else when confidence was low. | The mission brief shows the same low or moderate confidence warning. | `test_fr20_low_confidence_warning_is_in_the_v5_mission_brief`. |
+| 5 | **NFR-10, NFR-9.** The OGL attribution and the not-official-advice notice were only in the last tab, and the Privacy paragraph described the V4 request, not the V5 session. | A footer on every view carries the OGL v3.0 attribution, the not-official-advice and no-UKRI-endorsement notices, and the no-names, no-storage statement. The Privacy paragraph now says abstracts live only in the browser session's memory and no paid API is called. | `test_nfr9_nfr10_footer_and_no_people_in_v5_outputs`, `test_nfr9_user_text_is_never_written_to_disk_or_logged`. |
+| 6 | **NFR-6.** Two unused imports in `engine.py`. | Removed. | `pyflakes` clean. |
+
+### V5 status, every item
+
+Status key: **Met**, **Partly**, **Not met**. "Before" is V5 as first pushed (`48fad7b`); "After" is V5.1.
+
+#### Functional requirements
+
+| ID | Before | After | Evidence in V5 |
+|---|---|---|---|
+| FR-1 | Met | Met | `src/fundmatch/pipeline/collect_gtr.py`; training notebook §1; live API still answers (158,710 projects); `test_fr1_*`. |
+| FR-2 | Met | Met | `data/projects_meta.parquet` columns (id, ref, title, funder, category, organisation, award, dates, URL); notebook §2 missing-value table. Abstracts are deliberately not in the app table. |
+| FR-3 | Met | Met | `RateLimiter` (0.6 s pause), back-off, resume; `test_fr3_fr4_*`; `training/logs/collect_stdout.log` shows real 503 retries. |
+| FR-4 | Met | Met | `training/logs/collection_log.json`; `save_snapshot`; tests. |
+| FR-5 | Met | Met | No Kaggle or GtR-Extended data; stated in `training/README.md`, `README.MD` and report §2.1. |
+| FR-6 | Met | Met | Funnel 158,710 to 113,233 reproduced by `training/redteam/rt_check_funnel.py`; `test_fr6_*`. |
+| FR-7 | Met | Met | `normalise_funder`; class plot in notebook §2. |
+| FR-8 | Met | Met | 1,224 projects start in 2026 or later; rule applied to award bands (`RECENT_START_YEAR`); `test_fr8_*`. |
+| FR-9 | Met | Met | Notebook §5 feature shapes. |
+| FR-10 | Met | Met | Notebook §4 stratified grouped split (90,585 / 22,648) plus time-based check §6.3. |
+| FR-11 | Met | Met | `training/figures/learning_curve.png`: macro-F1 0.778 at 1,807 rows to 0.862 at 90,585. |
+| FR-12 | Partly | **Partly** | Test macro-F1: TF-IDF + LR **0.8615** (top-3 0.9916), Linear SVM 0.862, Complement NB 0.807, majority 0.054. A real **CPU SciBERT fine-tune on 3,000 rows** scored 0.784 (TF-IDF + LR on the same rows 0.825). A full fine-tune on all 90,585 rows needs a GPU and was not run; no number was invented. |
+| FR-13 | Partly | **Partly** | BM25 0.916, TF-IDF 0.895, MiniLM 0.900, BGE 0.8945, SPECTER 0.758 (Recall@10 on known-item search); FAISS HNSW 0.998 of the exact top 10. The ~50 hand-judged queries are in `training/models/manual_relevance_sheet.csv` with **assistant-drafted** labels; the `relevant (group)` column is empty because the judgements must come from the students. |
+| FR-14 | Met | Met | MAE on log amount: Ridge 0.800 / 0.534 with metadata; LightGBM 0.462 (its P25 to P75 covers only 0.422); deployed 30-neighbour band covers 0.505. |
+| FR-15 | Met | Met | `class_weight='balanced'`; per-class F1 in `model_info.json` and the Model Lab tab. |
+| FR-16 | Met | Met | `summary.json["tuning"]`, seed 42, training seconds in `results[*].train_s`. |
+| FR-17 | Met | Met | `artifacts/deployment_selection.csv` (6 configurations); TF-IDF + LR 370 MB / 57 ms against the ensemble's 790 MB / 190 ms. |
+| FR-18 | Met | Met | Notebook §8 and §8.1. |
+| FR-19 | Met | Met | `text.check_input`; V5 page tested with empty and 4-word input: clear message, no exception (`test_fr19_*`). |
+| FR-20 | Met | Met | Probability bar chart in AI Matcher plus the new gauge; low and moderate warnings in both the matcher and the mission brief (`test_fr20_*`). |
+| FR-21 | Met | Met | Similar table (title, council, scheme, award, start, end, organisation, GtR link); default 10 (`test_fr21_*`); 10 of 10 links checked live. |
+| FR-22 | Met | Met | Award band P25 / median / P75 with "not a funding quote" caveat (`cpih.CAVEAT`); mission brief tile says "not a quote". |
+| FR-23 | Met | Met | "Topic funding by year" stacked by council. |
+| FR-24 | Met | Met | 10 demo chips (`demo_*` buttons). |
+| FR-25 | Met | Met | Council, year and scheme filters (AI Matcher) plus V5 precedent explorer with council, year and award filters. |
+| FR-26 | Met | Met | CSV in AI Matcher, comparison, batch, and V5 precedent CSV; Markdown, JSON and PDF exports. |
+| FR-27 | Met | Met | About panel: source and date, model, test accuracy, weak classes, limits, wake note, OGL, not-official-advice. |
+
+#### Non-functional requirements
+
+| ID | Before | After | Evidence in V5 |
+|---|---|---|---|
+| NFR-1 | Met | Met | Macro-F1 0.8615 against 0.054 (majority) and 0.807 (Complement NB); top-3 0.9916. |
+| NFR-2 | Met | Met | Median 82 ms (Linux) and 147 ms (PC) per query; target under 3 s. Idea Studio tools: checklist 3 ms, radar 35 ms, compare 240 ms, PDF 147 ms. |
+| NFR-3 | Partly | **Met** | Streamlit Cloud limits (690 MB minimum, 2.7 GB maximum) checked 25 Nov 2026. Server peak now **613 to 616 MB** on Linux and 566 MB on the PC, below the 690 MB minimum. The Linux figure is on Python 3.13; the cloud runs Python 3.11, so a few MB of difference is possible. The live app has stayed up since it went out. |
+| NFR-4 | Met | Met | Live URL answers HTTP 303 (Streamlit redirect) and the headless browser loads V5; wake steps in README and About. The group must still open it on submission day. |
+| NFR-5 | Met | Met | Pinned `requirements.txt` (now with `fpdf2==2.8.9`), seed 42, executed notebook, snapshot; wheels exist for Python 3.11 on Windows and Linux. |
+| NFR-6 | Met | Met | Docstrings; `pyflakes` clean; two unused imports removed. |
+| NFR-7 | Met | Met | Four-step guide, plain-English tiles, glossary, demos, caveat lines under every V5 tool. |
+| NFR-8 | Partly | **Met** | Okabe-Ito council colours; every Cartesian chart has axis titles (test); WCAG AA contrast >= 4.5:1 for all text colours on the dark backgrounds (`test_text_contrast_meets_wcag_aa_nfr8`); checklist uses a symbol as well as colour; word-driver bars differ by side as well as colour; motion switches off under `prefers-reduced-motion`. |
+| NFR-9 | Met | Met | Organisations only; person endpoints refused; names redacted on load; V5 outputs (similar table, precedents, PDF) contain no honorific-plus-name text for any demo; the code never writes user text to disk or logs it (test). Residual: names without an honorific. |
+| NFR-10 | Met | Met | OGL v3.0 footer on every view and in the PDF; not official advice; UKRI does not endorse; sources cited. |
+| NFR-11 | Met | Met | Model Lab metrics and per-class F1; About lists weak classes; Explain tool shows accuracy by confidence band. |
+| NFR-12 | Met | Met | Collector reruns and resumes; models reload from `artifacts/`. |
+| NFR-13 | Met | Met | No secrets in the repo (`test_nfr13_*`). |
+| NFR-14 | Met | Met | Report PDF is 1,491 words under the 1,500 limit, headings follow the brief. |
+
+#### Feature list (MoSCoW)
+
+| Feature | Priority | Before | After | Where in V5 |
+|---|---|---|---|---|
+| Funder predictor with probabilities | Must | Met | Met | Mission brief, AI Matcher |
+| Top 10 similar projects with GtR links, amounts, dates | Must | Met | Met | AI Matcher table; Idea Studio precedents (50) |
+| Typical funding range | Must | Met | Met | Award band, mission-brief tile |
+| About and limits panel | Must | Met | Met | Model Lab & Ethics tab and footer |
+| Model comparison in the notebook | Must | Met | Met | Notebook §6, 7.2, 7.3 (frozen transformers and a CPU SciBERT pilot) |
+| Topic funding trend chart | Should | Met | Met | "Topic funding by year"; Waves tab |
+| One-click example abstracts | Should | Met | Met | Demo chips |
+| Low-confidence warning and per-class accuracy | Should | Met | Met | Matcher and mission brief; Model Lab |
+| Error analysis section | Should | Met | Met | Notebook §8 |
+| Filters by council and year | Could | Met | Met | AI Matcher; precedent explorer |
+| CSV download | Could | Met | Met | Several |
+| Links to live UKRI Funding Finder per council | Could | Met | Met | Mission-brief buttons for each shortlisted council; matcher links; PDF |
+| Won't have: success prediction, proposal writing, researcher ranking | Won't | Partly | **Met** | About "Out of scope" paragraph, Readiness caption, rename to Idea Studio, test |
+
+#### Marking-scheme map (section 5)
+
+| Brief section (marks) | Before | After | Note |
+|---|---|---|---|
+| Usefulness (2) | Met | Met | |
+| Uses data (1) | Met | Met | |
+| Data sufficient (2) | Met | Met | |
+| Own sources (2) | Met | Met | |
+| Own code (3) | Met | Met | |
+| Preprocessing and features (3) | Met | Met | |
+| Candidate models (3) | Partly | **Partly** | FR-12 (no full GPU fine-tune) and FR-13 (no human judgements yet) |
+| Training process (3) | Met | Met | |
+| Deployment choice (6) | Partly | **Met** | NFR-3 now measured under the limit |
+| Deployment, showcase, link (5) | Met | Met | |
+| Report, reproducibility, code quality | Met | Met | |
+
+#### Notes in the requirements file
+
+- GtR count: re-called today, 158,710 (matches the 23 Nov snapshot).
+- Whether every project has an award amount: not every one does. The app shows "£0 · not priced" and leaves those out of the band (FR-14, FR-22).
+- Hosting limits: checked 25 Nov 2026 (690 MB minimum). Re-check before submission.
+
+### Counts
+
+| Group | Items | Before (V5.0): Met / Partly / Not met | After (V5.1): Met / Partly / Not met |
+|---|---|---|---|
+| FR-1 to FR-27 | 27 | 25 / 2 / 0 | 25 / 2 / 0 |
+| NFR-1 to NFR-14 | 14 | 12 / 2 / 0 | 14 / 0 / 0 |
+| Feature list | 13 | 12 / 1 / 0 | 13 / 0 / 0 |
+| Marking rows | 11 | 9 / 2 / 0 | 10 / 1 / 0 |
+| **Total** | 65 | **58 / 7 / 0** | **62 / 3 / 0** |
+
+### Still Partly, and why
+
+- **FR-12 (and the "Candidate models" marking row).** The comparison against fine-tuned SciBERT is a real CPU pilot on 3,000 rows. A full fine-tune on all rows needs a GPU, which was not available. The measured result is reported as is.
+- **FR-13.** The hand-judged relevance column must be filled in by the students. The drafted labels are marked as not human-judged and are not counted as such.
+
+### Where the submitted files no longer match the app
+
+These were not edited (`submission_final/` and `task2_shamim/` are untouched).
+1. Report §4 says "61 automated tests pass"; the suite now has 80.
+2. Report §4 says the server "peaks near 819 MiB while starting"; the current measured peak is 613 to 616 MB (Linux) and 566 MB (PC). The report is more pessimistic than the app now is.
+3. Report Figure 6 is a 25 Nov screenshot of the V4 look with the "V4 Final Edition" label; the live app now shows the V5 Neon Edition. The 88% EPSRC figure still matches.
+4. The submitted code zip (`FundMatch_Code_and_Notebook.zip`) holds the V4 code, not V5 or V5.1. The live app and the `shamim` branch are newer. The report links to the branch, which is private until access is given.
+5. Nothing in the report or the PRD contradicts the Won't-have list; the report does not describe the new Idea Studio.
+
 
 ## Round 2: red-team pass (25 Nov 2026)
 

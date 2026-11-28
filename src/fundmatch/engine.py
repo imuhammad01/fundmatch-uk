@@ -26,7 +26,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 from fundmatch.privacy import redact_org_name, redact_person_names
 from fundmatch.cpih import CAVEAT, TARGET_2026, TARGET_LABEL, SOURCE_URL, annual_index, to_real_gbp
-from fundmatch.demos import DEMOS
 from fundmatch.intelligence import (
     CALIBRATION_NOTE,
     HONESTY,
@@ -41,7 +40,6 @@ from fundmatch.text import STOP_WORDS
 
 RECENT_START_YEAR = 2026  # FR-8: award bands use projects that started before this year
 from fundmatch.text import (
-    MIN_WORDS,
     TOKEN_RE,
     check_input,
     english_share,
@@ -445,7 +443,15 @@ class FundMatchEngine:
 
     def _search(self, masked: str) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         matrix = self.vectorize([masked])
-        raw = np.asarray(matrix @ self.c_rec.T, dtype=np.float32).ravel()
+        # V5.1 (NFR-3): multiply only the query's non-zero terms by their rows of the
+        # 64 x 200,000 projection. ``matrix @ self.c_rec.T`` made a float64 copy of the
+        # whole projection (about 100 MB) on every first query, which set the server's
+        # memory peak. The numbers are the same.
+        csr = matrix.tocsr()
+        if csr.nnz:
+            raw = (self.c_rec[:, csr.indices].astype(np.float64) @ csr.data.astype(np.float64)).astype(np.float32)
+        else:
+            raw = np.zeros(self.c_rec.shape[0], dtype=np.float32)
         norm = float(np.linalg.norm(raw))
         q = raw / norm if norm else raw
         svd = self.z_unit @ q

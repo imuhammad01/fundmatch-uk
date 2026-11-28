@@ -271,7 +271,7 @@ def tab_sky() -> None:
         fig = go.Figure()
         fig.add_bar(name="before", x=chart["council"], y=chart["before"], marker_color="#56B4E9")
         fig.add_bar(name="after", x=chart["council"], y=chart["after"], marker_color="#009E73")
-        fig.update_layout(barmode="group", height=320, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#e7eef6"), yaxis_tickformat=".0%")
+        fig.update_layout(barmode="group", height=320, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#e7eef6"), yaxis_tickformat=".0%", xaxis_title="UKRI council", yaxis_title="Calibrated probability", legend_title="")
         st.plotly_chart(fig, width="stretch")
 
 
@@ -355,11 +355,11 @@ def tab_corpus() -> None:
 
 **Speed and availability.** A warm query takes about 0.1–0.2 s on the server. The free host sleeps after 12 hours without visits; click "Yes, get this app back up!" and wait about a minute.
 
-**Privacy.** Pasted abstracts stay in memory for the request. They are not logged. The neighbour table has organisations, not people.
+**Privacy.** Pasted abstracts live only in your browser session's memory while the page is open. They are never written to disk, logged, or sent to another service, and the app calls no paid AI API. The neighbour table has organisations, not people.
 
 **Money.** {CAVEAT} {TARGET_LABEL}.
 
-**Out of scope.** No success prediction, no proposal writing, no researcher ranking. Lecture 3 is not used.
+**Out of scope.** The app does not predict whether a grant will be funded, does not write or edit proposals (the Idea Studio only checks wording with rules, lists vocabulary used by nearby funded titles, and runs labelled what-if simulations; it never rewrites your text), and does not rank or profile researchers (only organisations are counted). Lecture 3 is not used.
 """
     )
     rows = [
@@ -394,6 +394,7 @@ def tab_journey(persona_id: str) -> None:
     with left:
         st.metric("Readiness", f"{score['overall']:.0f} / 100")
         st.caption(score["tip"])
+        st.caption("Readiness is a transparent writing-signal heuristic (specificity, council fit, originality, method, bridge). It is not a prediction that an application would be funded.")
         radar = pd.DataFrame(score["dimensions"])
         fig = go.Figure()
         short = {
@@ -499,7 +500,7 @@ def _axis_org(name: str) -> str:
 
 
 def tab_coach(persona_id: str) -> None:
-    st.markdown("## Upgrade the draft, then hear the hard questions")
+    st.markdown("## Test the vocabulary, then hear the hard questions")
     title = st.session_state.get("title") or ""
     abstract = st.session_state.get("abstract") or ""
     if not (title or abstract):
@@ -563,7 +564,7 @@ def tab_hubs(persona_id: str) -> None:
     frame["axis"] = frame["organisation"].map(_axis_org)
     fig = px.bar(
         frame, x="awards", y="axis", orientation="h", color="dominant_council",
-        color_discrete_map=COUNCIL_COLOURS, labels={"awards": "Nearby awards", "axis": ""},
+        color_discrete_map=COUNCIL_COLOURS, labels={"awards": "Nearby awards", "axis": "Organisation"},
     )
     fig.update_layout(
         height=520, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(7,9,15,0.2)",
@@ -630,7 +631,7 @@ def onboarding() -> None:
         steps = [
             ("Describe the idea", "Pick your stage, then type a title and a short abstract, or tap a demo chip. 30 words is the minimum; 100+ is better."),
             ("Read the mission brief", "The panel under the button shows the most likely UKRI council, how reliable that number is, and the honest uncertainty."),
-            ("Open Proposal Studio", "See which words drive the prediction, run the draft checklist, find vocabulary used by nearby funded projects, and compare two ideas."),
+            ("Open Idea Studio", "See which words drive the prediction, run the draft checklist, find vocabulary used by nearby funded projects, and compare two ideas."),
             ("Check precedents and export", "Filter real funded projects by council, year and amount, then download a PDF brief and open the live calls on UKRI Funding Finder."),
         ]
         st.markdown(
@@ -692,6 +693,10 @@ def mission_brief() -> None:
             + "</div>",
             unsafe_allow_html=True,
         )
+    if result.confidence == "low":
+        st.error(result.confidence_note)
+    elif result.confidence == "moderate":
+        st.warning(result.confidence_note)
     links = st.columns(min(3, len(result.conformal_set_95)) + 1)
     for column, council in zip(links, result.conformal_set_95[:3]):
         column.link_button(f"Open {council} calls ↗", funding_finder_url(council), width="stretch")
@@ -717,7 +722,7 @@ def _studio_explain(title: str, abstract: str, result) -> None:
             x=rows["points"], y=rows["term"], orientation="h", marker_color=rows["colour"],
             hovertemplate="%{y}: %{x:+.3f} logit points<extra></extra>",
         ))
-        _style(fig, 60 + 24 * len(rows)).update_layout(xaxis_title=f"Push toward (+) or away from (−) {council}", yaxis_title="")
+        _style(fig, 60 + 24 * len(rows)).update_layout(xaxis_title=f"Push toward (+) or away from (−) {council}", yaxis_title="Word or phrase")
         st.plotly_chart(fig, width="stretch", key="drivers_chart")
     st.markdown(f'<p class="sp-caveat">{html.escape(drivers.get("note", ""))} The model reads words, not meaning: '
                 'a phrase like “not a compiler” still counts the word “compiler”.</p>', unsafe_allow_html=True)
@@ -892,8 +897,8 @@ STUDIO_TOOLS = ["Explain", "Draft checklist", "Vocabulary", "Precedents", "Idea 
 
 
 def tab_studio() -> None:
-    st.markdown('<p class="fm-kicker">V5 · Proposal Studio</p>', unsafe_allow_html=True)
-    st.markdown("## Proposal Studio")
+    st.markdown('<p class="fm-kicker">V5 · Idea Studio</p>', unsafe_allow_html=True)
+    st.markdown("## Idea Studio")
     title, abstract = _idea()
     if not (title.strip() or abstract.strip()):
         st.info("Type an idea at the top of the page or tap a demo chip. The studio works on that text.")
@@ -959,7 +964,7 @@ def main() -> None:
         st.session_state["_scored"] = True
     mission_brief()
     studio_tab, journey, coach_tab, hub_tab, waves, matcher, sky, arena, lab = st.tabs([
-        "✦ Proposal Studio", "Your journey", "AI Coach & Red-Team", "UK Research Hubs", "Waves & fusion",
+        "✦ Idea Studio", "Your journey", "AI Coach & Red-Team", "UK Research Hubs", "Waves & fusion",
         "AI Matcher", "Constellation & What-if", "Compare & Batch", "Model Lab & Ethics",
     ])
     with studio_tab:
@@ -981,6 +986,13 @@ def main() -> None:
     with lab:
         tab_lab(True)
         tab_corpus()
+    st.markdown(
+        '<p class="sp-caveat" style="margin-top:1.5rem">ScholarPulse UK is a student project, not official UKRI funding advice, and UKRI does not endorse it. '
+        'Contains public sector information licensed under the '
+        '<a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/">Open Government Licence v3.0</a> '
+        '(UKRI Gateway to Research). No researcher names are shown and abstracts are not stored.</p>',
+        unsafe_allow_html=True,
+    )
 
 
 main()
